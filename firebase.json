@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "deliveryoffices",
     "public": ".",
     "ignore": [
       "firebase.json",
