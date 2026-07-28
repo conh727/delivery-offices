@@ -26,313 +26,287 @@
 </head>
 <body class="bg-base-200 min-h-screen text-base-content">
 
-    <!-- Login Screen -->
+    <!-- Login Screen (Pure Google Sign-In Only) -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="card bg-base-100 shadow-2xl border border-base-300 w-full max-w-md">
-            <div class="card-body p-6 text-center gap-3">
+            <div class="card-body p-8 text-center gap-4">
                 <div class="inline-block p-4 rounded-full bg-emerald-100 text-emerald-700 mx-auto">
                     <i class="fa-solid fa-user-shield text-4xl"></i>
                 </div>
                 <h2 class="font-bold text-2xl text-base-content">نظام إدارة مكاتب التوديع</h2>
-                <p class="text-xs text-base-content/60">لوحة المشرفين والمساهمين المعتمدين في العراق</p>
+                <p class="text-xs text-base-content/60">لوحة المشرفين والمساهمين المعتمدين في العراق 🇮🇶</p>
 
-                <!-- Alert Message -->
-                <div id="access-denied-alert" class="alert alert-error text-xs hidden my-1">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span id="access-alert-msg">عذراً، هذا الحساب غير مصرح له بالدخول كـ مشرف!</span>
-                </div>
+                <div class="divider text-xs text-base-content/40 my-2">تسجيل الدخول الآمن للمشرفين</div>
 
                 <!-- Google Sign In Button -->
-                <button id="btn-google-login" class="btn btn-outline btn-neutral btn-block gap-3 font-bold py-3 shadow">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                    تسجيل الدخول عبر حساب Google
+                <button id="btn-google-login" class="btn btn-emerald btn-primary btn-block text-white gap-3 font-bold py-3 shadow-lg hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5 fill-current text-white" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                    تسجيل الدخول بنقرة واحدة عبر Google
                 </button>
 
-                <div class="divider text-xs text-base-content/40 my-1">أو عبر رمز المرور المباشر</div>
+                <p class="text-[11px] text-base-content/50 mt-2">محمي بنظام المشرفين المعتمدين وتشفير سحابي متكامل.</p>
+            </div>
+        </div>
+    </div>
 
-                <!-- Fixed Solid Email/PIN Form -->
-                <div class="bg-base-200/70 p-4 rounded-xl border border-base-300 space-y-3 text-right">
-                    <div class="form-control">
-                        <label class="label py-1"><span class="label-text font-bold text-xs">البريد الإلكتروني (اختياري)</span></label>
-                        <input type="text" id="login-email" placeholder="admin@delivery.iq" class="input input-bordered input-sm w-full text-xs" />
+    <!-- Corporate Dashboard Layout (Flexbox Responsive Sidebar) -->
+    <div id="admin-panel" class="hidden min-h-screen flex flex-col md:flex-row">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-72 bg-base-100 border-l border-base-300 p-4 flex flex-col justify-between shadow-xl flex-shrink-0">
+            <div class="space-y-6">
+                <!-- Sidebar Header -->
+                <div class="flex items-center gap-3 px-2 py-3 border-b border-base-200">
+                    <div class="p-2.5 rounded-xl bg-emerald-600 text-white">
+                        <i class="fa-solid fa-truck-ramp-box text-xl"></i>
                     </div>
-                    <div class="form-control">
-                        <label class="label py-1"><span class="label-text font-bold text-xs">رمز المرور السريع *</span></label>
-                        <input type="password" id="login-password" placeholder="أدخل 12345" class="input input-bordered input-sm w-full text-xs" />
+                    <div>
+                        <h1 class="font-bold text-base text-base-content">إدارة مكاتب التوديع</h1>
+                        <p class="text-[11px] text-emerald-600 font-semibold">العراق 🇮🇶 Corporate</p>
                     </div>
-                    <button id="btn-login-fallback" class="btn btn-primary btn-sm btn-block text-white text-xs font-bold">
-                        تسجيل الدخول بالمفتاح 🔑
+                </div>
+
+                <!-- Sidebar Menu Items -->
+                <ul class="menu p-0 gap-1.5 text-sm font-semibold">
+                    <li>
+                        <button class="sidebar-btn active gap-3 py-3 bg-primary text-white" data-pane="pane-offices" data-title="🏬 المكاتب الفعالة والمعتمدة">
+                            <i class="fa-solid fa-store text-lg"></i> المكاتب الفعالة
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-btn gap-3 py-3 justify-between" data-pane="pane-pending" data-title="⏳ طلبات الإضافة المعلقة">
+                            <span class="flex items-center gap-3"><i class="fa-solid fa-hourglass-half text-lg text-amber-500"></i> الطلبات المعلقة</span>
+                            <span id="pending-sidebar-badge" class="badge badge-warning badge-sm font-bold">0</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-btn gap-3 py-3 justify-between" data-pane="pane-reports" data-title="🚨 تبليغات السائقين والشكاوى">
+                            <span class="flex items-center gap-3"><i class="fa-solid fa-triangle-exclamation text-lg text-rose-500"></i> تبليغات السائقين</span>
+                            <span id="reports-sidebar-badge" class="badge badge-error text-white badge-sm font-bold">0</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-btn gap-3 py-3" data-pane="pane-link-gen" data-title="🔗 مولد رابط التسجيل الخارجي">
+                            <i class="fa-solid fa-link text-lg text-sky-500"></i> مولد الروابط
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-btn gap-3 py-3" data-pane="pane-admins" data-title="👥 إدارة المشرفين والمستخدمين">
+                            <i class="fa-solid fa-users-gear text-lg text-indigo-500"></i> إدارة المشرفين
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-btn gap-3 py-3" data-pane="pane-audit" data-title="📜 سجل العمليات (Audit Log)">
+                            <i class="fa-solid fa-list-check text-lg text-slate-500"></i> سجل العمليات Log
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
+                نظام إدارة المكاتب v3.0 • Iraq
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 bg-base-200 p-4 md:p-6 overflow-y-auto">
+            
+            <!-- Navbar Top Bar -->
+            <header class="navbar bg-base-100 shadow-md rounded-2xl mb-6 px-4 border border-base-300 flex justify-between">
+                <h2 id="section-header-title" class="font-bold text-base md:text-lg text-base-content">🏬 المكاتب الفعالة والمعتمدة</h2>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 text-xs font-semibold bg-base-200 px-3 py-1.5 rounded-xl border border-base-300">
+                        <i class="fa-solid fa-user-circle text-emerald-600 text-base"></i>
+                        <span id="user-display-email" class="text-base-content/80">المشرف</span>
+                    </div>
+                    <button id="btn-logout" class="btn btn-error btn-xs text-white font-bold gap-1">
+                        <i class="fa-solid fa-right-from-bracket"></i> خروج
                     </button>
                 </div>
-            </div>
-        </div>
+            </header>
 
-        <!-- Corporate Dashboard Layout (Drawer Sidebar) -->
-        <div id="admin-panel" class="drawer lg:drawer-open hidden min-h-screen">
-            <input id="dashboard-drawer" type="checkbox" class="drawer-toggle" />
-            
-            <div class="drawer-content flex flex-col bg-base-200 p-4 lg:p-6">
-                
-                <!-- Navbar Top Bar -->
-                <header class="navbar bg-base-100 shadow-md rounded-2xl mb-6 px-4 border border-base-300 flex justify-between">
-                    <div class="flex items-center gap-2">
-                        <label for="dashboard-drawer" class="btn btn-square btn-ghost drawer-button lg:hidden">
-                            <i class="fa-solid fa-bars text-lg"></i>
-                        </label>
-                        <h2 id="section-header-title" class="font-bold text-lg text-base-content">🏬 المكاتب الفعالة والمعتمدة</h2>
-                    </div>
+            <!-- SECTION PANES -->
+            <!-- PANE 1: ACTIVE OFFICES -->
+            <div id="pane-offices" class="pane-content space-y-4">
+                <div class="card bg-base-100 shadow border border-base-300">
+                    <div class="card-body p-5 gap-3">
+                        <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
+                            <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
+                        </h3>
+                        <input type="hidden" id="edit-doc-id" value="">
 
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center gap-2 text-xs font-semibold bg-base-200 px-3 py-1.5 rounded-xl border border-base-300">
-                            <i class="fa-solid fa-user-circle text-emerald-600 text-base"></i>
-                            <span id="user-display-email" class="text-base-content/80">المشرف</span>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">اسم المكتب الرئيسي *</span></label>
+                            <input type="text" id="office-name" class="input input-bordered w-full text-sm" placeholder="اسم المكتب" />
                         </div>
-                        <button id="btn-logout" class="btn btn-error btn-xs text-white font-bold gap-1">
-                            <i class="fa-solid fa-right-from-bracket"></i> خروج
-                        </button>
-                    </div>
-                </header>
 
-                <!-- SECTION PANES -->
-                <!-- PANE 1: ACTIVE OFFICES -->
-                <div id="pane-offices" class="pane-content space-y-4">
-                    <div class="card bg-base-100 shadow border border-base-300">
-                        <div class="card-body p-5 gap-3">
-                            <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
-                                <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
-                            </h3>
-                            <input type="hidden" id="edit-doc-id" value="">
-
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">اسم المكتب الرئيسي *</span></label>
-                                <input type="text" id="office-name" class="input input-bordered w-full text-sm" placeholder="اسم المكتب" />
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-bold text-xs">المحافظة *</span></label>
-                                    <select id="office-governorate" class="select select-bordered w-full text-sm">
-                                        <option value="بغداد - الكرخ">بغداد - الكرخ</option>
-                                        <option value="بغداد - الرصافة">بغداد - الرصافة</option>
-                                        <option value="البصرة">البصرة</option>
-                                        <option value="نينوى (الموصل)">نينوى (الموصل)</option>
-                                        <option value="أربيل">أربيل</option>
-                                        <option value="النجف الأشرف">النجف الأشرف</option>
-                                        <option value="كربلاء المقدسة">كربلاء المقدسة</option>
-                                        <option value="بابل (الحلة)">بابل (الحلة)</option>
-                                        <option value="واسط (الكوت)">واسط (الكوت)</option>
-                                        <option value="ديالي (بعقوبة)">ديالي (بعقوبة)</option>
-                                        <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
-                                        <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
-                                        <option value="ميسان (العمارة)">ميسان (العمارة)</option>
-                                        <option value="المثنى (السماوة)">المثنى (السماوة)</option>
-                                        <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
-                                        <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
-                                        <option value="السليمانية">السليمانية</option>
-                                        <option value="دهوك">دهوك</option>
-                                        <option value="كركوك">كركوك</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-bold text-xs">المنطقة / الفرع</span></label>
-                                    <input type="text" id="office-district" class="input input-bordered w-full text-sm" placeholder="المنطقة" />
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-bold text-xs">رقم المكتب</span></label>
-                                    <input type="text" id="office-number" class="input input-bordered w-full text-sm" placeholder="رقم" />
-                                </div>
-                                <div class="form-control">
-                                    <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
-                                        <input type="checkbox" id="show-number-check" class="checkbox checkbox-primary checkbox-sm" />
-                                        <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-bold text-xs">وقت الفتح</span></label>
-                                    <input type="time" id="office-open-time" value="08:00" class="input input-bordered w-full text-sm" />
-                                </div>
-                                <div class="form-control w-full">
-                                    <label class="label"><span class="label-text font-bold text-xs">وقت الإغلاق</span></label>
-                                    <input type="time" id="office-close-time" value="22:00" class="input input-bordered w-full text-sm" />
-                                </div>
+                                <label class="label"><span class="label-text font-bold text-xs">المحافظة *</span></label>
+                                <select id="office-governorate" class="select select-bordered w-full text-sm">
+                                    <option value="بغداد - الكرخ">بغداد - الكرخ</option>
+                                    <option value="بغداد - الرصافة">بغداد - الرصافة</option>
+                                    <option value="البصرة">البصرة</option>
+                                    <option value="نينوى (الموصل)">نينوى (الموصل)</option>
+                                    <option value="أربيل">أربيل</option>
+                                    <option value="النجف الأشرف">النجف الأشرف</option>
+                                    <option value="كربلاء المقدسة">كربلاء المقدسة</option>
+                                    <option value="بابل (الحلة)">بابل (الحلة)</option>
+                                    <option value="واسط (الكوت)">واسط (الكوت)</option>
+                                    <option value="ديالي (بعقوبة)">ديالي (بعقوبة)</option>
+                                    <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
+                                    <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
+                                    <option value="ميسان (العمارة)">ميسان (العمارة)</option>
+                                    <option value="المثنى (السماوة)">المثنى (السماوة)</option>
+                                    <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
+                                    <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
+                                    <option value="السليمانية">السليمانية</option>
+                                    <option value="دهوك">دهوك</option>
+                                    <option value="كركوك">كركوك</option>
+                                </select>
                             </div>
 
                             <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">رقم الهاتف</span></label>
-                                <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
-                            </div>
-
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل (Google Maps Link) *</span></label>
-                                <input type="url" id="office-map-link" dir="ltr" class="input input-bordered w-full text-left text-sm" placeholder="https://maps.app.goo.gl/..." />
-                            </div>
-
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">الوصف والملاحظات</span></label>
-                                <textarea id="office-desc" rows="2" class="textarea textarea-bordered text-sm" placeholder="الوصف..."></textarea>
-                            </div>
-
-                            <div class="flex gap-2 mt-2">
-                                <button id="btn-save" class="btn btn-primary text-white flex-1 font-bold gap-2">
-                                    <i class="fa-solid fa-floppy-disk"></i> حفظ المكتب
-                                </button>
-                                <button id="btn-cancel-edit" class="btn btn-ghost hidden">إلغاء التعديل</button>
+                                <label class="label"><span class="label-text font-bold text-xs">المنطقة / الفرع</span></label>
+                                <input type="text" id="office-district" class="input input-bordered w-full text-sm" placeholder="المنطقة" />
                             </div>
                         </div>
-                    </div>
 
-                    <h3 class="font-bold text-sm text-base-content/80">المكاتب الفعالة المسجلة:</h3>
-                    <div id="admin-offices-list" class="space-y-3">
-                        <p class="text-xs text-base-content/60">جاري التحميل...</p>
-                    </div>
-                </div>
-
-                <!-- PANE 2: PENDING APPROVALS -->
-                <div id="pane-pending" class="pane-content hidden space-y-4">
-                    <div class="alert alert-warning text-xs py-3 shadow-sm">
-                        <i class="fa-solid fa-clock-history"></i>
-                        <span><strong>طلبات التسجيل المعلقة:</strong> الطلبات القادمة عبر رابط التسجيل تتطلب موافقتك قبل النشر.</span>
-                    </div>
-                    <div id="pending-offices-list" class="space-y-3">
-                        <p class="text-xs text-base-content/60">جاري جلب الطلبات المعلقة...</p>
-                    </div>
-                </div>
-
-                <!-- PANE 3: DRIVER REPORTS -->
-                <div id="pane-reports" class="pane-content hidden space-y-4">
-                    <div class="alert alert-error text-xs py-3 shadow-sm text-white">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <span><strong>تبليغات السائقين:</strong> البلاغات الواردة من واجهة السائقين.</span>
-                    </div>
-                    <div id="reports-list" class="space-y-3">
-                        <p class="text-xs text-base-content/60">جاري تحميل البلاغات...</p>
-                    </div>
-                </div>
-
-                <!-- PANE 4: LINK GENERATOR -->
-                <div id="pane-link-gen" class="pane-content hidden">
-                    <div class="card bg-base-100 shadow border border-base-300">
-                        <div class="card-body p-6 gap-3">
-                            <h3 class="font-bold text-base text-primary flex items-center gap-2">
-                                <i class="fa-solid fa-link"></i> رابط التسجيل الخارجي للمكاتب
-                            </h3>
-                            <p class="text-xs text-base-content/70">انسخ الرابط وأرسله لأصحاب المكاتب لإدخال بياناتهم وتثبيت موقعهم الخريطة بأنفسهم:</p>
-
-                            <div class="flex gap-2 my-2">
-                                <input type="text" id="generated-link-input" dir="ltr" readonly class="input input-bordered w-full text-xs font-bold text-primary bg-base-200" />
-                                <button id="btn-copy-link" class="btn btn-primary text-white text-xs font-bold gap-1 whitespace-nowrap">
-                                    <i class="fa-solid fa-copy"></i> نسخ الرابط
-                                </button>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">رقم المكتب</span></label>
+                                <input type="text" id="office-number" class="input input-bordered w-full text-sm" placeholder="رقم" />
                             </div>
+                            <div class="form-control">
+                                <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
+                                    <input type="checkbox" id="show-number-check" class="checkbox checkbox-primary checkbox-sm" />
+                                    <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
+                                </label>
+                            </div>
+                        </div>
 
-                            <a id="btn-share-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2">
-                                <i class="fa-brands fa-whatsapp text-lg"></i> مشاركة عبر واتساب
-                            </a>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">وقت الفتح</span></label>
+                                <input type="time" id="office-open-time" value="08:00" class="input input-bordered w-full text-sm" />
+                            </div>
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">وقت الإغلاق</span></label>
+                                <input type="time" id="office-close-time" value="22:00" class="input input-bordered w-full text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">رقم الهاتف</span></label>
+                            <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل (Google Maps Link) *</span></label>
+                            <input type="url" id="office-map-link" dir="ltr" class="input input-bordered w-full text-left text-sm" placeholder="https://maps.app.goo.gl/..." />
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">الوصف والملاحظات</span></label>
+                            <textarea id="office-desc" rows="2" class="textarea textarea-bordered text-sm" placeholder="الوصف..."></textarea>
+                        </div>
+
+                        <div class="flex gap-2 mt-2">
+                            <button id="btn-save" class="btn btn-primary text-white flex-1 font-bold gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> حفظ المكتب
+                            </button>
+                            <button id="btn-cancel-edit" class="btn btn-ghost hidden">إلغاء التعديل</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- PANE 5: WHITELISTED ADMINS -->
-                <div id="pane-admins" class="pane-content hidden space-y-4">
-                    <div class="card bg-base-100 shadow border border-base-300">
-                        <div class="card-body p-5 gap-3">
-                            <h3 class="font-bold text-base text-primary flex items-center gap-2">
-                                <i class="fa-solid fa-user-plus"></i> إضافة مشرف جديد معتمد
-                            </h3>
-                            <p class="text-xs text-base-content/60">أدخل بريد Google الإلكتروني للمشرف للسماح له بالدخول للوحة التحكم:</p>
-                            
-                            <div class="flex gap-2">
-                                <input type="email" id="new-admin-email" placeholder="example@gmail.com" class="input input-bordered w-full text-sm" dir="ltr" />
-                                <button id="btn-add-admin-email" class="btn btn-primary text-white font-bold text-xs whitespace-nowrap">
-                                    إضافة مشرف ➕
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 class="font-bold text-sm text-base-content/80">قائمة المشرفين المصرح لهم حالياً:</h3>
-                    <div id="whitelisted-admins-list" class="space-y-2">
-                        <p class="text-xs text-base-content/60">جاري تحميل قائمة المشرفين...</p>
-                    </div>
+                <h3 class="font-bold text-sm text-base-content/80">المكاتب الفعالة المسجلة:</h3>
+                <div id="admin-offices-list" class="space-y-3">
+                    <p class="text-xs text-base-content/60">جاري التحميل...</p>
                 </div>
-
-                <!-- PANE 6: AUDIT LOG -->
-                <div id="pane-audit" class="pane-content hidden space-y-2">
-                    <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات (Audit Trail Log):</h3>
-                    <div id="audit-logs-list" class="space-y-2">
-                        <p class="text-xs text-base-content/60">جاري تحميل السجل...</p>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- Corporate Sidebar Drawer Navigation -->
-            <div class="drawer-side z-40">
-                <label for="dashboard-drawer" class="drawer-overlay"></label>
-                <aside class="bg-base-100 w-72 min-h-screen border-l border-base-300 p-4 flex flex-col justify-between shadow-xl">
-                    <div class="space-y-6">
-                        <!-- Sidebar Header -->
-                        <div class="flex items-center gap-3 px-2 py-3 border-b border-base-200">
-                            <div class="p-2.5 rounded-xl bg-emerald-600 text-white">
-                                <i class="fa-solid fa-truck-ramp-box text-xl"></i>
-                            </div>
-                            <div>
-                                <h1 class="font-bold text-base text-base-content">إدارة مكاتب التوديع</h1>
-                                <p class="text-[11px] text-emerald-600 font-semibold">العراق 🇮🇶 Corporate</p>
-                            </div>
+            <!-- PANE 2: PENDING APPROVALS -->
+            <div id="pane-pending" class="pane-content hidden space-y-4">
+                <div class="alert alert-warning text-xs py-3 shadow-sm">
+                    <i class="fa-solid fa-clock-history"></i>
+                    <span><strong>طلبات التسجيل المعلقة:</strong> الطلبات القادمة عبر رابط التسجيل تتطلب موافقتك قبل النشر.</span>
+                </div>
+                <div id="pending-offices-list" class="space-y-3">
+                    <p class="text-xs text-base-content/60">جاري جلب الطلبات المعلقة...</p>
+                </div>
+            </div>
+
+            <!-- PANE 3: DRIVER REPORTS -->
+            <div id="pane-reports" class="pane-content hidden space-y-4">
+                <div class="alert alert-error text-xs py-3 shadow-sm text-white">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span><strong>تبليغات السائقين:</strong> البلاغات الواردة من واجهة السائقين.</span>
+                </div>
+                <div id="reports-list" class="space-y-3">
+                    <p class="text-xs text-base-content/60">جاري تحميل البلاغات...</p>
+                </div>
+            </div>
+
+            <!-- PANE 4: LINK GENERATOR -->
+            <div id="pane-link-gen" class="pane-content hidden">
+                <div class="card bg-base-100 shadow border border-base-300">
+                    <div class="card-body p-6 gap-3">
+                        <h3 class="font-bold text-base text-primary flex items-center gap-2">
+                            <i class="fa-solid fa-link"></i> رابط التسجيل الخارجي للمكاتب
+                        </h3>
+                        <p class="text-xs text-base-content/70">انسخ الرابط وأرسله لأصحاب المكاتب لإدخال بياناتهم وتثبيت موقعهم الخريطة بأنفسهم:</p>
+
+                        <div class="flex gap-2 my-2">
+                            <input type="text" id="generated-link-input" dir="ltr" readonly class="input input-bordered w-full text-xs font-bold text-primary bg-base-200" />
+                            <button id="btn-copy-link" class="btn btn-primary text-white text-xs font-bold gap-1 whitespace-nowrap">
+                                <i class="fa-solid fa-copy"></i> نسخ الرابط
+                            </button>
                         </div>
 
-                        <!-- Sidebar Menu Items -->
-                        <ul class="menu p-0 gap-1.5 text-sm font-semibold">
-                            <li>
-                                <button class="sidebar-btn active gap-3 py-3" data-pane="pane-offices" data-title="🏬 المكاتب الفعالة والمعتمدة">
-                                    <i class="fa-solid fa-store text-lg text-emerald-600"></i> المكاتب الفعالة
-                                </button>
-                            </li>
-                            <li>
-                                <button class="sidebar-btn gap-3 py-3 justify-between" data-pane="pane-pending" data-title="⏳ طلبات الإضافة المعلقة">
-                                    <span class="flex items-center gap-3"><i class="fa-solid fa-hourglass-half text-lg text-amber-500"></i> الطلبات المعلقة</span>
-                                    <span id="pending-sidebar-badge" class="badge badge-warning badge-sm font-bold">0</span>
-                                </button>
-                            </li>
-                            <li>
-                                <button class="sidebar-btn gap-3 py-3 justify-between" data-pane="pane-reports" data-title="🚨 تبليغات السائقين والشكاوى">
-                                    <span class="flex items-center gap-3"><i class="fa-solid fa-triangle-exclamation text-lg text-rose-500"></i> تبليغات السائقين</span>
-                                    <span id="reports-sidebar-badge" class="badge badge-error text-white badge-sm font-bold">0</span>
-                                </button>
-                            </li>
-                            <li>
-                                <button class="sidebar-btn gap-3 py-3" data-pane="pane-link-gen" data-title="🔗 مولد رابط التسجيل الخارجي">
-                                    <i class="fa-solid fa-link text-lg text-sky-500"></i> مولد الروابط
-                                </button>
-                            </li>
-                            <li>
-                                <button class="sidebar-btn gap-3 py-3" data-pane="pane-admins" data-title="👥 إدارة المشرفين والمستخدمين">
-                                    <i class="fa-solid fa-users-gear text-lg text-indigo-500"></i> إدارة المشرفين
-                                </button>
-                            </li>
-                            <li>
-                                <button class="sidebar-btn gap-3 py-3" data-pane="pane-audit" data-title="📜 سجل العمليات (Audit Log)">
-                                    <i class="fa-solid fa-list-check text-lg text-slate-500"></i> سجل العمليات Log
-                                </button>
-                            </li>
-                        </ul>
+                        <a id="btn-share-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> مشاركة عبر واتساب
+                        </a>
                     </div>
-
-                    <!-- Sidebar Footer -->
-                    <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                        نظام إدارة المكاتب v2.5 • Iraq
-                    </div>
-                </aside>
+                </div>
             </div>
-        </div>
+
+            <!-- PANE 5: WHITELISTED ADMINS -->
+            <div id="pane-admins" class="pane-content hidden space-y-4">
+                <div class="card bg-base-100 shadow border border-base-300">
+                    <div class="card-body p-5 gap-3">
+                        <h3 class="font-bold text-base text-primary flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> إضافة مشرف جديد معتمد
+                        </h3>
+                        <p class="text-xs text-base-content/60">أدخل بريد Google الإلكتروني للمشرف للسماح له بالدخول للوحة التحكم:</p>
+                        
+                        <div class="flex gap-2">
+                            <input type="email" id="new-admin-email" placeholder="example@gmail.com" class="input input-bordered w-full text-sm" dir="ltr" />
+                            <button id="btn-add-admin-email" class="btn btn-primary text-white font-bold text-xs whitespace-nowrap">
+                                إضافة مشرف ➕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-sm text-base-content/80">قائمة المشرفين المصرح لهم حالياً:</h3>
+                <div id="whitelisted-admins-list" class="space-y-2">
+                    <p class="text-xs text-base-content/60">جاري تحميل قائمة المشرفين...</p>
+                </div>
+            </div>
+
+            <!-- PANE 6: AUDIT LOG -->
+            <div id="pane-audit" class="pane-content hidden space-y-2">
+                <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات (Audit Trail Log):</h3>
+                <div id="audit-logs-list" class="space-y-2">
+                    <p class="text-xs text-base-content/60">جاري تحميل السجل...</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
 
     <!-- Map Pin Picker Modal Dialog -->
     <dialog id="map-modal-dialog" class="modal modal-bottom sm:modal-middle">
@@ -361,7 +335,7 @@
     <!-- Firebase JS SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -378,14 +352,10 @@
         const googleProvider = new GoogleAuthProvider();
         const db = getFirestore(app);
 
-        const FALLBACK_PIN = "12345";
-        let isLocalPinAuth = false;
         let currentUserEmail = "";
-
         let activeOfficesCache = [];
         let pendingOfficesCache = [];
         let reportsCache = [];
-        let whitelistedAdmins = [];
 
         // Sidebar Navigation Tabs Switch
         const sidebarBtns = document.querySelectorAll('.sidebar-btn');
@@ -400,9 +370,6 @@
 
                 document.getElementById(targetPane).classList.remove('hidden');
                 document.getElementById('section-header-title').textContent = paneTitle;
-
-                const drawerToggle = document.getElementById('dashboard-drawer');
-                if (drawerToggle) drawerToggle.checked = false;
 
                 if (targetPane === 'pane-pending') loadPendingOffices();
                 if (targetPane === 'pane-reports') loadReports();
@@ -423,42 +390,12 @@
 
         document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل وتحديث بيانات مكاتب التوديع للسائقين في العراق: ' + registerFullUrl)}`;
 
-        // Fetch Whitelist with Fallback Catch
-        async function fetchAdminWhitelist() {
-            try {
-                whitelistedAdmins = [];
-                const snapshot = await getDocs(collection(db, "whitelisted_admins"));
-                snapshot.forEach(d => {
-                    const em = d.data().email;
-                    if (em) whitelistedAdmins.push(em.toLowerCase().trim());
-                });
-            } catch (e) {
-                console.log("Whitelist fetch notice:", e);
-            }
-        }
-
-        // Auth Listener - Resilient
-        onAuthStateChanged(auth, async (user) => {
-            if (isLocalPinAuth) {
-                currentUserEmail = currentUserEmail || "admin@delivery.iq";
+        // Auth Listener - Pure Google Auth Only
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserEmail = user.email ? user.email.toLowerCase().trim() : "مشرف المكاتب";
                 document.getElementById('user-display-email').textContent = currentUserEmail;
                 showAdminPanel();
-                return;
-            }
-
-            if (user) {
-                await fetchAdminWhitelist();
-                currentUserEmail = user.email ? user.email.toLowerCase().trim() : "admin@delivery.iq";
-
-                // Allow access if whitelist is empty OR if user is in whitelist
-                if (whitelistedAdmins.length === 0 || whitelistedAdmins.includes(currentUserEmail)) {
-                    document.getElementById('user-display-email').textContent = currentUserEmail;
-                    showAdminPanel();
-                } else {
-                    document.getElementById('access-denied-alert').classList.remove('hidden');
-                    document.getElementById('access-alert-msg').textContent = `عذراً، الحساب (${currentUserEmail}) غير مصرح له كـ مشرف بعد! استخدم رمز الدخول 12345 لإضافته.`;
-                    showLoginScreen();
-                }
             } else {
                 showLoginScreen();
             }
@@ -467,6 +404,7 @@
         function showAdminPanel() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('admin-panel').classList.add('flex');
             loadAdminOffices();
             loadPendingOffices();
             loadReports();
@@ -475,36 +413,20 @@
         function showLoginScreen() {
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('flex');
         }
 
-        // Google Login Button
+        // Google Login Button Trigger
         document.getElementById('btn-google-login').addEventListener('click', async () => {
-            document.getElementById('access-denied-alert').classList.add('hidden');
             try {
                 await signInWithPopup(auth, googleProvider);
             } catch (err) {
                 console.error("Google sign-in error:", err);
+                alert("حدث خطأ أثناء تسجيل الدخول عبر Google. يرجى المحاولة مرة أخرى.");
             }
-        });
-
-        // Fallback PIN Login Button
-        document.getElementById('btn-login-fallback').addEventListener('click', () => {
-            const passwordInput = document.getElementById('login-password').value.trim();
-            const emailInput = document.getElementById('login-email').value.trim();
-
-            if (passwordInput === FALLBACK_PIN || emailInput === FALLBACK_PIN) {
-                isLocalPinAuth = true;
-                currentUserEmail = emailInput || "admin@delivery.iq";
-                document.getElementById('user-display-email').textContent = currentUserEmail;
-                showAdminPanel();
-                return;
-            }
-
-            alert("رمز المرور غير صحيح! الرمز الافتراضي هو 12345");
         });
 
         document.getElementById('btn-logout').addEventListener('click', async () => {
-            isLocalPinAuth = false;
             try { await signOut(auth); } catch (e) {}
             showLoginScreen();
         });
@@ -542,7 +464,6 @@
                     container.appendChild(createActiveOfficeRow(data));
                 });
             } catch (e) {
-                console.error("loadAdminOffices error:", e);
                 container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة مسجلة حالياً.</p>';
             }
         }
@@ -669,7 +590,6 @@
                     container.appendChild(card);
                 });
             } catch (e) {
-                console.error("loadPendingOffices error:", e);
                 container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد طلبات معلقة بانتظار الموافقة.</p>';
             }
         }
@@ -725,7 +645,6 @@
                     container.appendChild(card);
                 });
             } catch (e) {
-                console.error("loadReports error:", e);
                 container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد بلاغات مسجلة.</p>';
             }
         }
@@ -747,7 +666,7 @@
                 });
 
                 if (admins.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">لم يتم إضافة مشرفين مخصصين بعد. أي مشرف يسجل دخول بـ Google سيُتاح له الوصول أو يمكنك إضافة إيميلك أدناه.</p>';
+                    container.innerHTML = '<p class="text-xs text-base-content/60">أنت المشرف الحالي! يمكنك إضافة مشرفين إضافيين أدناه.</p>';
                     return;
                 }
 
@@ -759,7 +678,7 @@
                             <i class="fa-solid fa-user-check text-emerald-600"></i>
                             <span class="font-bold text-xs" dir="ltr">${escapeHtml(adm.email)}</span>
                         </div>
-                        <button class="btn btn-error btn-ghost btn-xs btn-del-admin text-error" data-id="${adm.id}" data-email="${escapeHtml(adm.email)}">
+                        <button class="btn btn-error btn-ghost btn-xs btn-del-admin text-error" data-id="${adm.id}">
                             <i class="fa-solid fa-user-minus"></i> حذف
                         </button>
                     `;
@@ -774,7 +693,7 @@
                     container.appendChild(row);
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-base-content/60">لم يتم إضافة مشرفين مخصصين بعد.</p>';
+                container.innerHTML = '<p class="text-xs text-base-content/60">أنت المشرف الحالي! يمكنك إضافة مشرفين إضافيين أدناه.</p>';
             }
         }
 
