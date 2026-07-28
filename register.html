@@ -102,14 +102,22 @@
                         </div>
                     </div>
 
-                    <!-- Single Unified Office Phone / Number -->
-                    <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
-                        <div class="relative">
-                            <input type="tel" id="reg-phone" placeholder="مثال: 07701234567" class="input input-bordered w-full pr-9 text-sm focus:input-primary" required />
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
-                                <i class="fa-solid fa-phone"></i>
-                            </span>
+                    <!-- Single Phone Input & Default Hidden Checkbox -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
+                            <div class="relative">
+                                <input type="tel" id="reg-phone" placeholder="مثال: 07701234567" class="input input-bordered w-full pr-9 text-sm focus:input-primary" required />
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
+                                    <i class="fa-solid fa-phone"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-2.5 border border-base-300 rounded-xl p-2.5 bg-base-200/50">
+                                <input type="checkbox" id="reg-show-phone" class="checkbox checkbox-primary checkbox-sm" />
+                                <span class="label-text font-semibold text-xs">إظهار رقم الهاتف للسائقين (مخفي تلقائياً)</span>
+                            </label>
                         </div>
                     </div>
 
@@ -125,7 +133,7 @@
                         </div>
                     </div>
 
-                    <!-- Location Selector: EITHER Interactive Map Pin OR Google Maps Link (Exclusive Choice) -->
+                    <!-- Location Selector -->
                     <div class="form-control w-full bg-base-200/50 p-3 rounded-xl border border-base-300 space-y-3">
                         <label class="label py-0"><span class="label-text font-bold text-xs text-primary">طريقة تحديد موقع المكتب (اختر طريقة واحدة):</span></label>
                         
@@ -395,6 +403,8 @@
             }
 
             const phone = document.getElementById('reg-phone').value.trim();
+            const showPhone = document.getElementById('reg-show-phone').checked; // Default false (hidden)
+
             const openTime = document.getElementById('reg-open-time').value;
             const closeTime = document.getElementById('reg-close-time').value;
             const desc = document.getElementById('reg-desc').value.trim();
@@ -420,7 +430,8 @@
                 governorate,
                 district,
                 phone,
-                officeNumber: phone, // Unified phone/office number
+                officeNumber: phone,
+                showNumber: showPhone, // Default false
                 openTime,
                 closeTime,
                 mapUrl,

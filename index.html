@@ -173,6 +173,19 @@
 
         let officesList = [];
 
+        // Log Visit Statistic for Analytics
+        async function logVisitStat(selectedGov = "الكل") {
+            try {
+                const dateStr = new Date().toISOString().split('T')[0];
+                await addDoc(collection(db, "page_visits"), {
+                    dateStr,
+                    governorate: selectedGov,
+                    timestamp: Date.now()
+                });
+            } catch (e) {}
+        }
+        logVisitStat("عام");
+
         // Toggle Filter Box Button
         document.getElementById('btn-toggle-filter').addEventListener('click', () => {
             const filterPanel = document.getElementById('filter-panel');
@@ -242,7 +255,8 @@
                 const card = document.createElement('div');
                 card.className = "card bg-base-100 shadow-md border border-base-300 hover:shadow-lg transition-shadow";
 
-                const phoneNum = off.phone || off.officeNumber;
+                const showPhone = (off.showNumber === true || off.showPhone === true);
+                const phoneNum = showPhone ? (off.phone || off.officeNumber) : null;
                 const mapLink = off.mapUrl || (off.lat && off.lng ? `https://www.google.com/maps?q=${off.lat},${off.lng}` : null);
 
                 card.innerHTML = `
@@ -320,7 +334,10 @@
         });
 
         document.getElementById('search-input').addEventListener('input', renderOffices);
-        document.getElementById('governorate-filter').addEventListener('change', renderOffices);
+        document.getElementById('governorate-filter').addEventListener('change', () => {
+            logVisitStat(document.getElementById('governorate-filter').value);
+            renderOffices();
+        });
         document.getElementById('sort-order').addEventListener('change', renderOffices);
 
         fetchOffices();

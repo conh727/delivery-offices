@@ -87,7 +87,12 @@
                         </button>
                     </li>
                     <li>
-                        <button class="sidebar-btn gap-3 py-3" data-pane="pane-link-gen" data-title="🔗 مولد رابط التسجيل الخارجي">
+                        <button class="sidebar-btn gap-3 py-3" data-pane="pane-analytics" data-title="📊 تقرير زيارات السائقين والتحليلات">
+                            <i class="fa-solid fa-chart-line text-lg text-emerald-500"></i> تقرير الزيارات 📊
+                        </button>
+                    </li>
+                    <li>
+                        <button class="sidebar-btn gap-3 py-3" data-pane="pane-link-gen" data-title="🔗 مولد الروابط ومشاركة المنصة">
                             <i class="fa-solid fa-link text-lg text-sky-500"></i> مولد الروابط
                         </button>
                     </li>
@@ -106,7 +111,7 @@
 
             <!-- Sidebar Footer -->
             <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                نظام إدارة المكاتب v3.5 • Iraq
+                نظام إدارة المكاتب v4.0 • Iraq
             </div>
         </aside>
 
@@ -131,13 +136,30 @@
             <!-- SECTION PANES -->
             <!-- PANE 1: ACTIVE OFFICES -->
             <div id="pane-offices" class="pane-content space-y-4">
-                <div class="card bg-base-100 shadow border border-base-300">
+                
+                <!-- Action Header: Add Office Button -->
+                <div class="flex justify-between items-center bg-base-100 p-4 rounded-2xl shadow border border-base-300">
+                    <div>
+                        <h3 class="font-bold text-base text-base-content">دليل المكاتب الفعالة</h3>
+                        <p class="text-xs text-base-content/60">عرض وإدارة مكاتب وفروع التوديع المعتمدة في العراق</p>
+                    </div>
+                    <button id="btn-toggle-add-form" class="btn btn-primary text-white font-bold gap-2 shadow text-xs sm:text-sm">
+                        <i class="fa-solid fa-plus-circle"></i> إضافة مكتب جديد ➕
+                    </button>
+                </div>
+
+                <!-- Hidden Add/Edit Office Form Card -->
+                <div id="office-form-card" class="card bg-base-100 shadow border border-base-300 hidden transition-all">
                     <div class="card-body p-5 gap-3">
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center border-b border-base-200 pb-2">
                             <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
                                 <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
                             </h3>
+                            <button type="button" id="btn-close-form" class="btn btn-ghost btn-circle btn-xs">
+                                <i class="fa-solid fa-xmark text-base"></i>
+                            </button>
                         </div>
+                        
                         <input type="hidden" id="edit-doc-id" value="">
 
                         <div class="form-control w-full">
@@ -177,9 +199,18 @@
                             </div>
                         </div>
 
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
-                            <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
+                        <!-- Phone Number & Show Checkbox -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
+                                <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
+                            </div>
+                            <div class="form-control">
+                                <label class="label cursor-pointer justify-start gap-2.5 border border-base-300 rounded-xl p-2.5 bg-base-200/50">
+                                    <input type="checkbox" id="show-number-check" class="checkbox checkbox-primary checkbox-sm" />
+                                    <span class="label-text font-semibold text-xs">إظهار رقم الهاتف للسائقين (مخفي تلقائياً)</span>
+                                </label>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
@@ -193,13 +224,13 @@
                             </div>
                         </div>
 
-                        <!-- Location Choice: Link OR Map Pin -->
-                        <div class="form-control w-full bg-base-200/60 p-3 rounded-xl border border-base-300 space-y-2">
-                            <label class="label py-0"><span class="label-text font-bold text-xs">طريقة تحديد الموقع (رابط إما موقع بالخريطة):</span></label>
+                        <!-- Working Interactive GPS & Link Location Mode -->
+                        <div class="form-control w-full bg-base-200/60 p-3.5 rounded-xl border border-base-300 space-y-3">
+                            <label class="label py-0"><span class="label-text font-bold text-xs text-primary">طريقة تحديد موقع المكتب (خريطة إما رابط):</span></label>
                             <div class="flex gap-4">
                                 <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
                                     <input type="radio" name="admin-loc-type" value="map" checked class="radio radio-primary radio-xs" id="admin-loc-map-rad" />
-                                    📍 موقع بالخريطة
+                                    📍 تحديد الموقع على الخريطة
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
                                     <input type="radio" name="admin-loc-type" value="link" class="radio radio-primary radio-xs" id="admin-loc-link-rad" />
@@ -207,6 +238,18 @@
                                 </label>
                             </div>
 
+                            <!-- Map Mode Picker -->
+                            <div id="admin-map-box" class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[11px] text-base-content/70">اسحب الدبوس أو اضغط "موقعي الحالي":</span>
+                                    <button type="button" id="btn-admin-locate-me" class="btn btn-primary btn-xs gap-1 font-bold">
+                                        <i class="fa-solid fa-location-crosshairs"></i> موقعي الحالي 📍
+                                    </button>
+                                </div>
+                                <div id="form-map-picker" class="w-full h-48 rounded-xl border border-base-300 shadow-inner"></div>
+                            </div>
+
+                            <!-- Link Mode Box -->
                             <div id="admin-loc-link-box" class="hidden">
                                 <input type="url" id="office-map-link" dir="ltr" class="input input-bordered input-sm w-full text-left" placeholder="https://maps.app.goo.gl/..." />
                             </div>
@@ -221,7 +264,7 @@
                             <button id="btn-save" class="btn btn-primary text-white flex-1 font-bold gap-2">
                                 <i class="fa-solid fa-floppy-disk"></i> حفظ المكتب
                             </button>
-                            <button id="btn-cancel-edit" class="btn btn-ghost hidden">إلغاء التعديل</button>
+                            <button id="btn-cancel-edit" class="btn btn-ghost">إلغاء</button>
                         </div>
                     </div>
                 </div>
@@ -254,24 +297,101 @@
                 </div>
             </div>
 
+            <!-- PANE: ANALYTICS & VISIT REPORTS (NEW) -->
+            <div id="pane-analytics" class="pane-content hidden space-y-4">
+                <div id="analytics-denied-box" class="alert alert-warning text-xs hidden">
+                    <i class="fa-solid fa-lock text-lg"></i>
+                    <span><strong>تنبيه:</strong> تقرير الزيارات متاح للمالك والمشرفين ذوي الصلاحيات الكاملة فقط.</span>
+                </div>
+
+                <div id="analytics-content" class="space-y-4">
+                    <!-- Summary Stats Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="card bg-base-100 shadow border border-base-300 p-4 text-center">
+                            <div class="text-xs font-bold text-base-content/60 mb-1">زيارات اليوم 📅</div>
+                            <div id="stat-today-visits" class="text-2xl font-bold text-emerald-600">0</div>
+                        </div>
+                        <div class="card bg-base-100 shadow border border-base-300 p-4 text-center">
+                            <div class="text-xs font-bold text-base-content/60 mb-1">زيارات الشهر 🗓️</div>
+                            <div id="stat-month-visits" class="text-2xl font-bold text-primary">0</div>
+                        </div>
+                        <div class="card bg-base-100 shadow border border-base-300 p-4 text-center">
+                            <div class="text-xs font-bold text-base-content/60 mb-1">زيارات السنة 📆</div>
+                            <div id="stat-year-visits" class="text-2xl font-bold text-indigo-600">0</div>
+                        </div>
+                        <div class="card bg-base-100 shadow border border-base-300 p-4 text-center">
+                            <div class="text-xs font-bold text-base-content/60 mb-1">إجمالي الاستخدام 🌐</div>
+                            <div id="stat-total-visits" class="text-2xl font-bold text-amber-600">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Governorate Breakdown Table -->
+                    <div class="card bg-base-100 shadow border border-base-300">
+                        <div class="card-body p-5 gap-3">
+                            <h3 class="font-bold text-base text-emerald-700 flex items-center gap-2">
+                                <i class="fa-solid fa-map-location-dot"></i> توزيع استخدام السائقين حسب المحافظات
+                            </h3>
+                            <p class="text-xs text-base-content/60">إحصائيات استخدام صفحة السائقين مقسمة حسب كل محافظة:</p>
+
+                            <div class="overflow-x-auto">
+                                <table class="table table-zebra w-full text-xs">
+                                    <thead>
+                                        <tr>
+                                            <th>المحافظة</th>
+                                            <th>عدد الزيارات</th>
+                                            <th>النسبة المئوية</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="analytics-gov-tbody">
+                                        <tr><td colspan="3" class="text-center py-4">جاري التحليل...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- PANE 4: LINK GENERATOR -->
-            <div id="pane-link-gen" class="pane-content hidden">
+            <div id="pane-link-gen" class="pane-content hidden space-y-4">
+                <!-- Driver Page Link Box -->
                 <div class="card bg-base-100 shadow border border-base-300">
-                    <div class="card-body p-6 gap-3">
+                    <div class="card-body p-5 gap-3">
+                        <h3 class="font-bold text-base text-emerald-700 flex items-center gap-2">
+                            <i class="fa-solid fa-truck-fast"></i> 1. رابط صفحة السائقين (Driver Page)
+                        </h3>
+                        <p class="text-xs text-base-content/70">رابط تصفح المكاتب المباشر الخاص بسائقي التوصيل في العراق:</p>
+
+                        <div class="flex gap-2 my-1">
+                            <input type="text" id="driver-link-input" dir="ltr" readonly class="input input-bordered w-full text-xs font-bold text-emerald-700 bg-base-200" />
+                            <button id="btn-copy-driver-link" class="btn btn-emerald btn-primary text-white text-xs font-bold gap-1 whitespace-nowrap">
+                                <i class="fa-solid fa-copy"></i> نسخ الرابط
+                            </button>
+                        </div>
+
+                        <a id="btn-share-driver-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2 text-xs">
+                            <i class="fa-brands fa-whatsapp text-base"></i> مشاركة رابط السائقين عبر واتساب
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Registration Link Box -->
+                <div class="card bg-base-100 shadow border border-base-300">
+                    <div class="card-body p-5 gap-3">
                         <h3 class="font-bold text-base text-primary flex items-center gap-2">
-                            <i class="fa-solid fa-link"></i> رابط التسجيل الخارجي للمكاتب
+                            <i class="fa-solid fa-file-pen"></i> 2. رابط تسجيل المكاتب الخارجية (Registration Link)
                         </h3>
                         <p class="text-xs text-base-content/70">انسخ الرابط وأرسله لأصحاب المكاتب لإدخال بياناتهم وتثبيت موقعهم الخريطة بأنفسهم:</p>
 
-                        <div class="flex gap-2 my-2">
+                        <div class="flex gap-2 my-1">
                             <input type="text" id="generated-link-input" dir="ltr" readonly class="input input-bordered w-full text-xs font-bold text-primary bg-base-200" />
                             <button id="btn-copy-link" class="btn btn-primary text-white text-xs font-bold gap-1 whitespace-nowrap">
                                 <i class="fa-solid fa-copy"></i> نسخ الرابط
                             </button>
                         </div>
 
-                        <a id="btn-share-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2">
-                            <i class="fa-brands fa-whatsapp text-lg"></i> مشاركة عبر واتساب
+                        <a id="btn-share-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2 text-xs">
+                            <i class="fa-brands fa-whatsapp text-base"></i> مشاركة رابط التسجيل عبر واتساب
                         </a>
                     </div>
                 </div>
@@ -352,7 +472,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
@@ -376,16 +496,77 @@
         let reportsCache = [];
         let adminsCache = [];
 
+        // Toggle Form Visibility
+        const btnToggleForm = document.getElementById('btn-toggle-add-form');
+        const btnCloseForm = document.getElementById('btn-close-form');
+        const btnCancelEdit = document.getElementById('btn-cancel-edit');
+        const officeFormCard = document.getElementById('office-form-card');
+
+        btnToggleForm.addEventListener('click', () => {
+            resetForm();
+            officeFormCard.classList.remove('hidden');
+            setTimeout(() => initFormMap(), 200);
+        });
+
+        btnCloseForm.addEventListener('click', () => officeFormCard.classList.add('hidden'));
+        btnCancelEdit.addEventListener('click', () => officeFormCard.classList.add('hidden'));
+
         // Location Radio Handler in Admin Form
         const locMapRad = document.getElementById('admin-loc-map-rad');
         const locLinkRad = document.getElementById('admin-loc-link-rad');
+        const adminMapBox = document.getElementById('admin-map-box');
         const locLinkBox = document.getElementById('admin-loc-link-box');
 
         locMapRad.addEventListener('change', () => {
-            if (locMapRad.checked) locLinkBox.classList.add('hidden');
+            if (locMapRad.checked) {
+                adminMapBox.classList.remove('hidden');
+                locLinkBox.classList.add('hidden');
+                setTimeout(() => initFormMap(), 200);
+            }
         });
         locLinkRad.addEventListener('change', () => {
-            if (locLinkRad.checked) locLinkBox.classList.remove('hidden');
+            if (locLinkRad.checked) {
+                locLinkBox.classList.remove('hidden');
+                adminMapBox.classList.add('hidden');
+            }
+        });
+
+        // Interactive Map in Admin Form
+        let formMapInstance = null;
+        let formMapMarker = null;
+        let formLat = 33.3152;
+        let formLng = 44.3661;
+
+        function initFormMap() {
+            if (!formMapInstance) {
+                formMapInstance = L.map('form-map-picker').setView([formLat, formLng], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(formMapInstance);
+                formMapMarker = L.marker([formLat, formLng], { draggable: true }).addTo(formMapInstance);
+
+                formMapMarker.on('dragend', function (e) {
+                    const coord = e.target.getLatLng();
+                    formLat = coord.lat;
+                    formLng = coord.lng;
+                });
+            } else {
+                formMapInstance.invalidateSize();
+            }
+        }
+
+        document.getElementById('btn-admin-locate-me').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        formLat = pos.coords.latitude;
+                        formLng = pos.coords.longitude;
+                        if (formMapInstance) {
+                            formMapInstance.setView([formLat, formLng], 14);
+                            formMapMarker.setLatLng([formLat, formLng]);
+                        }
+                    },
+                    (err) => alert("تعذر تحديد الموقع تلقائياً.")
+                );
+            }
         });
 
         // Sidebar Navigation Tabs Switch
@@ -404,29 +585,39 @@
 
                 if (targetPane === 'pane-pending') loadPendingOffices();
                 if (targetPane === 'pane-reports') loadReports();
+                if (targetPane === 'pane-analytics') loadAnalyticsReports();
                 if (targetPane === 'pane-admins') loadWhitelistedAdmins();
                 if (targetPane === 'pane-audit') loadAuditLogs();
             });
         });
 
-        // Initialize Link Generator URL
+        // Initialize Links Generator URLs
         const currentOrigin = window.location.origin + window.location.pathname.replace('admin.html', '');
         const registerFullUrl = currentOrigin + 'register.html';
+        const driverFullUrl = currentOrigin + 'index.html';
+
         document.getElementById('generated-link-input').value = registerFullUrl;
+        document.getElementById('driver-link-input').value = driverFullUrl;
 
         document.getElementById('btn-copy-link').addEventListener('click', () => {
             navigator.clipboard.writeText(registerFullUrl);
-            alert("تم نسخ رابط التسجيل الخارجي للحافظة! 📋");
+            alert("تم نسخ رابط تسجيل المكاتب! 📋");
         });
 
-        document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل وتحديث بيانات مكاتب التوديع للسائقين في العراق: ' + registerFullUrl)}`;
+        document.getElementById('btn-copy-driver-link').addEventListener('click', () => {
+            navigator.clipboard.writeText(driverFullUrl);
+            alert("تم نسخ رابط صفحة السائقين! 🚚");
+        });
+
+        document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل المكاتب والفروع للسائقين في العراق: ' + registerFullUrl)}`;
+        document.getElementById('btn-share-driver-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط صفحة البحث وتصفح مكاتب التوديع للسائقين في العراق: ' + driverFullUrl)}`;
 
         // Check Admin Role
         async function fetchAdminRole(email) {
             try {
                 const snapshot = await getDocs(collection(db, "whitelisted_admins"));
                 adminsCache = [];
-                let foundRole = "full"; // Default owner role if list empty
+                let foundRole = "full";
 
                 snapshot.forEach(d => {
                     const data = d.data();
@@ -443,13 +634,26 @@
             }
         }
 
+        // Email Masking Helper (Only Owner sees full email, others see c***7@gmail.com)
+        function maskEmail(email) {
+            if (!email) return 'مشرف';
+            if (currentUserRole === 'owner' || currentUserEmail === 'conh727@gmail.com') {
+                return email;
+            }
+            const parts = email.split('@');
+            if (parts.length < 2) return email;
+            const name = parts[0];
+            const maskedName = name.length > 2 ? name[0] + '***' + name[name.length - 1] : name[0] + '***';
+            return maskedName + '@' + parts[1];
+        }
+
         // Auth Listener - Pure Google Auth Only
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserEmail = user.email ? user.email.toLowerCase().trim() : "مشرف المكاتب";
                 await fetchAdminRole(currentUserEmail);
 
-                document.getElementById('user-display-email').textContent = currentUserEmail;
+                document.getElementById('user-display-email').textContent = maskEmail(currentUserEmail);
                 showAdminPanel();
             } else {
                 showLoginScreen();
@@ -532,7 +736,7 @@
                     <div>
                         <h4 class="font-bold text-sm text-base-content">${escapeHtml(office.name)}</h4>
                         <p class="text-xs text-base-content/70 mt-0.5">
-                            📍 ${escapeHtml(office.governorate || '')} ${office.district ? '- ' + escapeHtml(office.district) : ''} | 📞 ${escapeHtml(office.phone || office.officeNumber || 'غير مسجل')} | ⏰ ${escapeHtml(office.openTime || '08:00')} - ${escapeHtml(office.closeTime || '22:00')}
+                            📍 ${escapeHtml(office.governorate || '')} ${office.district ? '- ' + escapeHtml(office.district) : ''} | 📞 ${office.showNumber ? escapeHtml(office.phone || office.officeNumber || '') : '<span class="text-error font-bold">مخفي عن السائقين 🔒</span>'} | ⏰ ${escapeHtml(office.openTime || '08:00')} - ${escapeHtml(office.closeTime || '22:00')}
                         </p>
                     </div>
 
@@ -603,7 +807,7 @@
                             <p class="text-xs text-base-content/80 bg-base-200/50 p-2 rounded">${escapeHtml(pend.desc || 'بدون وصف إضافي')}</p>
 
                             <div class="text-xs text-base-content/60 flex flex-wrap gap-3">
-                                <span>📞 الهاتف / التواصل: <strong>${escapeHtml(pend.phone || pend.officeNumber || 'غير مسجل')}</strong></span>
+                                <span>📞 الهاتف: <strong>${escapeHtml(pend.phone || pend.officeNumber || 'غير مسجل')}</strong> (${pend.showNumber ? 'ظاهر' : 'مخفي تلقائياً 🔒'})</span>
                             </div>
 
                             <div class="flex gap-2 mt-2">
@@ -718,13 +922,90 @@
             }
         }
 
-        // --- PANE 5: WHITELISTED ADMINS & PERMISSIONS ---
+        // --- PANE: ANALYTICS & VISIT REPORTS ---
+        async function loadAnalyticsReports() {
+            const deniedBox = document.getElementById('analytics-denied-box');
+            const contentBox = document.getElementById('analytics-content');
+            const tbody = document.getElementById('analytics-gov-tbody');
+
+            if (currentUserRole === 'limited') {
+                deniedBox.classList.remove('hidden');
+                contentBox.classList.add('hidden');
+                return;
+            }
+
+            deniedBox.classList.add('hidden');
+            contentBox.classList.remove('hidden');
+
+            try {
+                const snapshot = await getDocs(collection(db, "page_visits"));
+                
+                const now = new Date();
+                const todayStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+                const monthStr = todayStr.substring(0, 7); // YYYY-MM
+                const yearStr = todayStr.substring(0, 4); // YYYY
+
+                let todayCount = 0;
+                let monthCount = 0;
+                let yearCount = 0;
+                let totalCount = 0;
+                let govMap = {};
+
+                snapshot.forEach(d => {
+                    const data = d.data();
+                    totalCount++;
+
+                    const vDate = data.dateStr || "";
+                    if (vDate === todayStr) todayCount++;
+                    if (vDate.startsWith(monthStr)) monthCount++;
+                    if (vDate.startsWith(yearStr)) yearCount++;
+
+                    const gov = data.governorate || "غير محدد";
+                    govMap[gov] = (govMap[gov] || 0) + 1;
+                });
+
+                document.getElementById('stat-today-visits').textContent = todayCount;
+                document.getElementById('stat-month-visits').textContent = monthCount;
+                document.getElementById('stat-year-visits').textContent = yearCount;
+                document.getElementById('stat-total-visits').textContent = totalCount;
+
+                tbody.innerHTML = '';
+                const sortedGovs = Object.keys(govMap).sort((a, b) => govMap[b] - govMap[a]);
+
+                if (sortedGovs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4">لا توجد زيارات مسجلة حتى الآن.</td></tr>';
+                    return;
+                }
+
+                sortedGovs.forEach(g => {
+                    const count = govMap[g];
+                    const percent = totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : 0;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="font-bold">📍 ${escapeHtml(g)}</td>
+                        <td class="font-mono font-bold">${count} زيارة</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <progress class="progress progress-emerald w-20" value="${percent}" max="100"></progress>
+                                <span class="font-bold">${percent}%</span>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                console.error("Analytics error:", e);
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-error">فشل جلب التقرير.</td></tr>';
+            }
+        }
+
+        // --- PANE 5: WHITELISTED ADMINS & ROLES ---
         async function loadWhitelistedAdmins() {
             const deniedBox = document.getElementById('admin-permission-denied-box');
             const mgmtContent = document.getElementById('admin-management-content');
             const container = document.getElementById('whitelisted-admins-list');
 
-            // If limited admin role, block access
             if (currentUserRole === 'limited') {
                 deniedBox.classList.remove('hidden');
                 mgmtContent.classList.add('hidden');
@@ -755,7 +1036,7 @@
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-user-shield ${isFull ? 'text-primary' : 'text-slate-500'}"></i>
                             <div>
-                                <span class="font-bold text-xs block" dir="ltr">${escapeHtml(adm.email)}</span>
+                                <span class="font-bold text-xs block" dir="ltr">${maskEmail(adm.email)}</span>
                                 <span class="badge ${badgeClass} text-[10px] font-bold mt-0.5">${roleLabel}</span>
                             </div>
                         </div>
@@ -767,7 +1048,7 @@
                     row.querySelector('.btn-del-admin').onclick = async () => {
                         if (confirm(`هل أنت متأكد من إلغاء صلاحية المشرف "${adm.email}"؟`)) {
                             await deleteDoc(doc(db, "whitelisted_admins", adm.id));
-                            await logAudit("قام بحذف مشرف", adm.email);
+                            await logAudit("قام بحذف مشرف", maskEmail(adm.email));
                             loadWhitelistedAdmins();
                         }
                     };
@@ -796,7 +1077,7 @@
                     addedBy: currentUserEmail,
                     addedAt: Date.now()
                 });
-                await logAudit(`قام بإضافة مشرف جديد (${roleInp})`, emailInp);
+                await logAudit(`قام بإضافة مشرف جديد (${roleInp})`, maskEmail(emailInp));
                 document.getElementById('new-admin-email').value = '';
                 loadWhitelistedAdmins();
                 alert("تم إضافة المشرف بنجاح! ✅");
@@ -827,7 +1108,7 @@
                     item.className = 'bg-base-100 p-3 rounded-lg border-r-4 border-r-primary shadow-sm text-xs space-y-1';
                     item.innerHTML = `
                         <div class="font-bold text-base-content">${escapeHtml(l.actionType)}: <strong class="text-primary">${escapeHtml(l.officeName)}</strong></div>
-                        <div class="text-base-content/60 text-[11px]">بواسطة: <strong>${escapeHtml(l.userEmail || 'المشرف')}</strong> | ⏱️ ${timeStr}</div>
+                        <div class="text-base-content/60 text-[11px]">بواسطة: <strong>${escapeHtml(maskEmail(l.userEmail))}</strong> | ⏱️ ${timeStr}</div>
                     `;
                     container.appendChild(item);
                 });
@@ -892,12 +1173,13 @@
             document.getElementById('office-open-time').value = office.openTime || '08:00';
             document.getElementById('office-close-time').value = office.closeTime || '22:00';
             document.getElementById('office-phone').value = office.phone || office.officeNumber || '';
+            document.getElementById('show-number-check').checked = office.showNumber || false;
             document.getElementById('office-map-link').value = office.mapUrl || '';
             document.getElementById('office-desc').value = office.desc || '';
 
             document.getElementById('form-title').innerText = "تعديل بيانات المكتب ✏️";
             document.getElementById('btn-save').innerText = "حفظ التعديلات 💾";
-            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+            officeFormCard.classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -908,15 +1190,13 @@
             document.getElementById('office-open-time').value = '08:00';
             document.getElementById('office-close-time').value = '22:00';
             document.getElementById('office-phone').value = '';
+            document.getElementById('show-number-check').checked = false;
             document.getElementById('office-map-link').value = '';
             document.getElementById('office-desc').value = '';
 
             document.getElementById('form-title').innerText = "إضافة مكتب توديع جديد ➕";
             document.getElementById('btn-save').innerText = "حفظ المكتب 💾";
-            document.getElementById('btn-cancel-edit').classList.add('hidden');
         }
-
-        document.getElementById('btn-cancel-edit').addEventListener('click', resetForm);
 
         document.getElementById('btn-save').addEventListener('click', async () => {
             const name = document.getElementById('office-name').value.trim();
@@ -925,6 +1205,7 @@
             const openTime = document.getElementById('office-open-time').value;
             const closeTime = document.getElementById('office-close-time').value;
             const phone = document.getElementById('office-phone').value.trim();
+            const showNumber = document.getElementById('show-number-check').checked;
             const mapUrl = document.getElementById('office-map-link').value.trim();
             const desc = document.getElementById('office-desc').value.trim();
             const editId = document.getElementById('edit-doc-id').value;
@@ -939,9 +1220,12 @@
                 district,
                 phone,
                 officeNumber: phone,
+                showNumber,
                 openTime,
                 closeTime,
                 mapUrl,
+                lat: formLat.toFixed(5),
+                lng: formLng.toFixed(5),
                 desc,
                 updatedAt: Date.now()
             };
@@ -956,6 +1240,7 @@
                     await logAudit("قام بإضافة مكتب جديد", name);
                 }
                 resetForm();
+                officeFormCard.classList.add('hidden');
                 loadAdminOffices();
                 alert("تم الحفظ بنجاح! ✅");
             } catch (e) {

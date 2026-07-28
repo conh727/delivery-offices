@@ -17,6 +17,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Driver Visit Analytics Statistics
+    match /page_visits/{visitId} {
+      allow read, create: if true;
+    }
+
     // Audit Trail Log & Whitelisted Admins
     match /audit_logs/{logId} {
       allow read, write: if true;
