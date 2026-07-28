@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة إدارة المكاتب والفروع | Iraq Delivery Offices</title>
+    <title>نظام إدارة مكاتب التوديع | Corporate Admin Dashboard</title>
 
     <!-- DaisyUI & Tailwind CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
@@ -24,251 +24,312 @@
         * { font-family: 'Readex Pro', system-ui, sans-serif; }
     </style>
 </head>
-<body class="bg-base-200 min-h-screen text-base-content pb-10">
+<body class="bg-base-200 min-h-screen text-base-content">
 
-    <div class="max-w-3xl mx-auto p-4">
-        
-        <!-- Header -->
-        <header class="navbar bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-xl mb-4 p-4">
-            <div class="flex-1 flex flex-col items-start gap-1">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-user-shield text-2xl text-emerald-400"></i>
-                    <h1 class="text-xl font-bold tracking-tight">لوحة الإدارة والموافقات 🔐</h1>
+    <!-- Login Screen -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="card bg-base-100 shadow-2xl border border-base-300 w-full max-w-md">
+            <div class="card-body p-8 text-center gap-4">
+                <div class="inline-block p-4 rounded-full bg-emerald-100 text-emerald-700 mx-auto">
+                    <i class="fa-solid fa-user-shield text-4xl"></i>
                 </div>
-                <p class="text-xs opacity-80">إدارة المكاتب، طلبات التسجيل المعلقة، ومتابعة التبليغات</p>
-            </div>
-            <div class="flex-none">
-                <a href="index.html" class="btn btn-sm btn-ghost text-sky-300 gap-1">
-                    <i class="fa-solid fa-house"></i> الرئيسية ↗
-                </a>
-            </div>
-        </header>
+                <h2 class="font-bold text-2xl text-base-content">نظام إدارة مكاتب التوديع</h2>
+                <p class="text-xs text-base-content/60">لوحة المشرفين والمساهمين المعتمدين في العراق</p>
 
-        <!-- Login Screen -->
-        <div id="login-screen" class="card bg-base-100 shadow-md border border-base-300 max-w-md mx-auto my-10">
-            <div class="card-body p-6 text-center">
-                <i class="fa-solid fa-lock text-4xl text-primary mb-2"></i>
-                <h2 class="font-bold text-xl mb-1">تسجيل دخول المشرفين والمساهمين</h2>
-                <p class="text-xs text-base-content/60 mb-4">يرجى إدخال حسابك المعتمد للوصول للوحة التحكم</p>
+                <div class="divider text-xs text-base-content/40">تسجيل الدخول آمن</div>
 
-                <div class="form-control w-full my-2 text-right">
-                    <label class="label"><span class="label-text font-bold text-xs">البريد الإلكتروني / الحساب</span></label>
-                    <input type="text" id="login-email" placeholder="admin@delivery.iq" class="input input-bordered w-full text-sm" />
-                </div>
-
-                <div class="form-control w-full my-2 text-right">
-                    <label class="label"><span class="label-text font-bold text-xs">كلمة المرور</span></label>
-                    <input type="password" id="login-password" placeholder="••••••••" class="input input-bordered w-full text-sm" />
-                </div>
-
-                <button id="btn-login" class="btn btn-primary btn-block text-white mt-4 font-bold gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
+                <!-- Google Sign In Button -->
+                <button id="btn-google-login" class="btn btn-outline btn-neutral btn-block gap-3 font-bold py-3 shadow">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                    تسجيل الدخول عبر حساب Google
                 </button>
+
+                <!-- Fallback Email/Pass Section -->
+                <div class="collapse collapse-arrow border border-base-300 bg-base-200/50 mt-2">
+                    <input type="checkbox" /> 
+                    <div class="collapse-title text-xs font-semibold text-base-content/70">
+                        أو عبر البريد والمفتاح السريع
+                    </div>
+                    <div class="collapse-content space-y-2 text-right">
+                        <input type="text" id="login-email" placeholder="admin@delivery.iq" class="input input-bordered input-sm w-full text-xs" />
+                        <input type="password" id="login-password" placeholder="••••••••" class="input input-bordered input-sm w-full text-xs" />
+                        <button id="btn-login-fallback" class="btn btn-primary btn-sm btn-block text-white text-xs">دخول</button>
+                    </div>
+                </div>
+
+                <div id="access-denied-alert" class="alert alert-error text-xs hidden">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>عذراً، هذا الحساب غير مصرح له بالدخول كـ مشرف!</span>
+                </div>
             </div>
         </div>
 
-        <!-- Main Dashboard Panel (Hidden until login) -->
-        <div id="admin-panel" class="hidden space-y-4">
+        <!-- Corporate Dashboard Layout (Drawer Sidebar) -->
+        <div id="admin-panel" class="drawer lg:drawer-open hidden min-h-screen">
+            <input id="dashboard-drawer" type="checkbox" class="drawer-toggle" />
             
-            <!-- User Status & Logout Banner -->
-            <div class="alert bg-base-100 shadow border border-base-300 flex justify-between items-center py-3">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-circle-user text-emerald-600 text-lg"></i>
-                    <span id="user-display-email" class="font-bold text-sm">مرحباً بك في لوحة الإدارة</span>
-                </div>
-                <button id="btn-logout" class="btn btn-error btn-xs btn-outline gap-1 font-bold">
-                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
-                </button>
-            </div>
-
-            <!-- Tabs Navigation -->
-            <div class="tabs tabs-boxed bg-base-100 p-1 shadow border border-base-300 overflow-x-auto flex-nowrap">
-                <button class="tab tab-active font-bold text-xs gap-1" data-tab="tab-offices">
-                    <i class="fa-solid fa-store"></i> المكاتب الفعالة
-                </button>
-                <button class="tab font-bold text-xs gap-1" data-tab="tab-pending">
-                    <i class="fa-solid fa-hourglass-half"></i> الموافقات المعلقة (<span id="pending-count">0</span>)
-                </button>
-                <button class="tab font-bold text-xs gap-1" data-tab="tab-reports">
-                    <i class="fa-solid fa-triangle-exclamation"></i> التبليغات (<span id="reports-count">0</span>)
-                </button>
-                <button class="tab font-bold text-xs gap-1" data-tab="tab-link-gen">
-                    <i class="fa-solid fa-link"></i> مولد الروابط
-                </button>
-                <button class="tab font-bold text-xs gap-1" data-tab="tab-audit">
-                    <i class="fa-solid fa-list-check"></i> سجل Audit Log
-                </button>
-            </div>
-
-            <!-- TAB 1: ACTIVE OFFICES -->
-            <div id="tab-offices" class="tab-pane space-y-4">
+            <div class="drawer-content flex flex-col bg-base-200 p-4 lg:p-6">
                 
-                <!-- Add / Edit Form Card -->
-                <div class="card bg-base-100 shadow border border-base-300">
-                    <div class="card-body p-5 gap-3">
-                        <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
-                            <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
-                        </h3>
-                        <input type="hidden" id="edit-doc-id" value="">
+                <!-- Navbar Top Bar -->
+                <header class="navbar bg-base-100 shadow-md rounded-2xl mb-6 px-4 border border-base-300 flex justify-between">
+                    <div class="flex items-center gap-2">
+                        <label for="dashboard-drawer" class="btn btn-square btn-ghost drawer-button lg:hidden">
+                            <i class="fa-solid fa-bars text-lg"></i>
+                        </label>
+                        <h2 id="section-header-title" class="font-bold text-lg text-base-content">🏬 المكاتب الفعالة والمعتمدة</h2>
+                    </div>
 
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">اسم المكتب الرئيسي *</span></label>
-                            <input type="text" id="office-name" class="input input-bordered w-full text-sm" placeholder="اسم المكتب" />
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2 text-xs font-semibold bg-base-200 px-3 py-1.5 rounded-xl border border-base-300">
+                            <i class="fa-solid fa-user-circle text-emerald-600 text-base"></i>
+                            <span id="user-display-email" class="text-base-content/80">المشرف</span>
                         </div>
+                        <button id="btn-logout" class="btn btn-error btn-xs text-white font-bold gap-1">
+                            <i class="fa-solid fa-right-from-bracket"></i> خروج
+                        </button>
+                    </div>
+                </header>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">المحافظة *</span></label>
-                                <select id="office-governorate" class="select select-bordered w-full text-sm">
-                                    <option value="بغداد - الكرخ">بغداد - الكرخ</option>
-                                    <option value="بغداد - الرصافة">بغداد - الرصافة</option>
-                                    <option value="البصرة">البصرة</option>
-                                    <option value="نينوى (الموصل)">نينوى (الموصل)</option>
-                                    <option value="أربيل">أربيل</option>
-                                    <option value="النجف الأشرف">النجف الأشرف</option>
-                                    <option value="كربلاء المقدسة">كربلاء المقدسة</option>
-                                    <option value="بابل (الحلة)">بابل (الحلة)</option>
-                                    <option value="واسط (الكوت)">واسط (الكوت)</option>
-                                    <option value="ديالي (بعقوبة)">ديالي (بعقوبة)</option>
-                                    <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
-                                    <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
-                                    <option value="ميسان (العمارة)">ميسان (العمارة)</option>
-                                    <option value="المثنى (السماوة)">المثنى (السماوة)</option>
-                                    <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
-                                    <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
-                                    <option value="السليمانية">السليمانية</option>
-                                    <option value="دهوك">دهوك</option>
-                                    <option value="كركوك">كركوك</option>
-                                </select>
-                            </div>
+                <!-- SECTION PANES -->
+                <!-- PANE 1: ACTIVE OFFICES -->
+                <div id="pane-offices" class="pane-content space-y-4">
+                    <div class="card bg-base-100 shadow border border-base-300">
+                        <div class="card-body p-5 gap-3">
+                            <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
+                                <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
+                            </h3>
+                            <input type="hidden" id="edit-doc-id" value="">
 
                             <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">المنطقة / الفرع</span></label>
-                                <input type="text" id="office-district" class="input input-bordered w-full text-sm" placeholder="المنطقة" />
+                                <label class="label"><span class="label-text font-bold text-xs">اسم المكتب الرئيسي *</span></label>
+                                <input type="text" id="office-name" class="input input-bordered w-full text-sm" placeholder="اسم المكتب" />
                             </div>
-                        </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-bold text-xs">المحافظة *</span></label>
+                                    <select id="office-governorate" class="select select-bordered w-full text-sm">
+                                        <option value="بغداد - الكرخ">بغداد - الكرخ</option>
+                                        <option value="بغداد - الرصافة">بغداد - الرصافة</option>
+                                        <option value="البصرة">البصرة</option>
+                                        <option value="نينوى (الموصل)">نينوى (الموصل)</option>
+                                        <option value="أربيل">أربيل</option>
+                                        <option value="النجف الأشرف">النجف الأشرف</option>
+                                        <option value="كربلاء المقدسة">كربلاء المقدسة</option>
+                                        <option value="بابل (الحلة)">بابل (الحلة)</option>
+                                        <option value="واسط (الكوت)">واسط (الكوت)</option>
+                                        <option value="ديالي (بعقوبة)">ديالي (بعقوبة)</option>
+                                        <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
+                                        <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
+                                        <option value="ميسان (العمارة)">ميسان (العمارة)</option>
+                                        <option value="المثنى (السماوة)">المثنى (السماوة)</option>
+                                        <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
+                                        <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
+                                        <option value="السليمانية">السليمانية</option>
+                                        <option value="دهوك">دهوك</option>
+                                        <option value="كركوك">كركوك</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-bold text-xs">المنطقة / الفرع</span></label>
+                                    <input type="text" id="office-district" class="input input-bordered w-full text-sm" placeholder="المنطقة" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-bold text-xs">رقم المكتب</span></label>
+                                    <input type="text" id="office-number" class="input input-bordered w-full text-sm" placeholder="رقم" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
+                                        <input type="checkbox" id="show-number-check" class="checkbox checkbox-primary checkbox-sm" />
+                                        <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-bold text-xs">وقت الفتح</span></label>
+                                    <input type="time" id="office-open-time" value="08:00" class="input input-bordered w-full text-sm" />
+                                </div>
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-bold text-xs">وقت الإغلاق</span></label>
+                                    <input type="time" id="office-close-time" value="22:00" class="input input-bordered w-full text-sm" />
+                                </div>
+                            </div>
+
                             <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">رقم المكتب</span></label>
-                                <input type="text" id="office-number" class="input input-bordered w-full text-sm" placeholder="رقم" />
+                                <label class="label"><span class="label-text font-bold text-xs">رقم الهاتف</span></label>
+                                <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
                             </div>
-                            <div class="form-control">
-                                <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
-                                    <input type="checkbox" id="show-number-check" class="checkbox checkbox-primary checkbox-sm" />
-                                    <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
-                                </label>
-                            </div>
-                        </div>
 
-                        <div class="grid grid-cols-2 gap-3">
                             <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">وقت الفتح</span></label>
-                                <input type="time" id="office-open-time" value="08:00" class="input input-bordered w-full text-sm" />
+                                <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل (Google Maps Link) *</span></label>
+                                <input type="url" id="office-map-link" dir="ltr" class="input input-bordered w-full text-left text-sm" placeholder="https://maps.app.goo.gl/..." />
                             </div>
+
                             <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">وقت الإغلاق</span></label>
-                                <input type="time" id="office-close-time" value="22:00" class="input input-bordered w-full text-sm" />
+                                <label class="label"><span class="label-text font-bold text-xs">الوصف والملاحظات</span></label>
+                                <textarea id="office-desc" rows="2" class="textarea textarea-bordered text-sm" placeholder="الوصف..."></textarea>
+                            </div>
+
+                            <div class="flex gap-2 mt-2">
+                                <button id="btn-save" class="btn btn-primary text-white flex-1 font-bold gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i> حفظ المكتب
+                                </button>
+                                <button id="btn-cancel-edit" class="btn btn-ghost hidden">إلغاء التعديل</button>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">رقم الهاتف</span></label>
-                            <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
-                        </div>
+                    <h3 class="font-bold text-sm text-base-content/80">المكاتب الفعالة المسجلة:</h3>
+                    <div id="admin-offices-list" class="space-y-3">
+                        <p class="text-xs text-base-content/60">جاري التحميل...</p>
+                    </div>
+                </div>
 
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل (Google Maps Link) *</span></label>
-                            <input type="url" id="office-map-link" dir="ltr" class="input input-bordered w-full text-left text-sm" placeholder="https://maps.app.goo.gl/..." />
-                        </div>
+                <!-- PANE 2: PENDING APPROVALS -->
+                <div id="pane-pending" class="pane-content hidden space-y-4">
+                    <div class="alert alert-warning text-xs py-3 shadow-sm">
+                        <i class="fa-solid fa-clock-history"></i>
+                        <span><strong>طلبات التسجيل المعلقة:</strong> الطلبات القادمة عبر رابط التسجيل تتطلب موافقتك قبل النشر.</span>
+                    </div>
+                    <div id="pending-offices-list" class="space-y-3">
+                        <p class="text-xs text-base-content/60">جاري جلب الطلبات المعلقة...</p>
+                    </div>
+                </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="form-control">
-                                <label class="label"><span class="label-text text-[11px] font-semibold">خط العرض (Lat)</span></label>
-                                <input type="text" id="office-lat" dir="ltr" class="input input-bordered input-sm bg-base-200 text-xs text-center" placeholder="33.3152" />
+                <!-- PANE 3: DRIVER REPORTS -->
+                <div id="pane-reports" class="pane-content hidden space-y-4">
+                    <div class="alert alert-error text-xs py-3 shadow-sm text-white">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span><strong>تبليغات السائقين:</strong> البلاغات الواردة من واجهة السائقين.</span>
+                    </div>
+                    <div id="reports-list" class="space-y-3">
+                        <p class="text-xs text-base-content/60">جاري تحميل البلاغات...</p>
+                    </div>
+                </div>
+
+                <!-- PANE 4: LINK GENERATOR -->
+                <div id="pane-link-gen" class="pane-content hidden">
+                    <div class="card bg-base-100 shadow border border-base-300">
+                        <div class="card-body p-6 gap-3">
+                            <h3 class="font-bold text-base text-primary flex items-center gap-2">
+                                <i class="fa-solid fa-link"></i> رابط التسجيل الخارجي للمكاتب
+                            </h3>
+                            <p class="text-xs text-base-content/70">انسخ الرابط وأرسله لأصحاب المكاتب لإدخال بياناتهم وتثبيت موقعهم الخريطة بأنفسهم:</p>
+
+                            <div class="flex gap-2 my-2">
+                                <input type="text" id="generated-link-input" dir="ltr" readonly class="input input-bordered w-full text-xs font-bold text-primary bg-base-200" />
+                                <button id="btn-copy-link" class="btn btn-primary text-white text-xs font-bold gap-1 whitespace-nowrap">
+                                    <i class="fa-solid fa-copy"></i> نسخ الرابط
+                                </button>
                             </div>
-                            <div class="form-control">
-                                <label class="label"><span class="label-text text-[11px] font-semibold">خط الطول (Lng)</span></label>
-                                <input type="text" id="office-lng" dir="ltr" class="input input-bordered input-sm bg-base-200 text-xs text-center" placeholder="44.3661" />
-                            </div>
-                        </div>
 
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">الوصف والملاحظات</span></label>
-                            <textarea id="office-desc" rows="2" class="textarea textarea-bordered text-sm" placeholder="الوصف..."></textarea>
-                        </div>
-
-                        <div class="flex gap-2 mt-2">
-                            <button id="btn-save" class="btn btn-emerald btn-primary text-white flex-1 font-bold gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> حفظ المكتب
-                            </button>
-                            <button id="btn-cancel-edit" class="btn btn-ghost hidden">إلغاء التعديل</button>
+                            <a id="btn-share-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2">
+                                <i class="fa-brands fa-whatsapp text-lg"></i> مشاركة عبر واتساب
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Active Offices List -->
-                <h3 class="font-bold text-sm text-base-content/80">قائمة المكاتب الفعالة:</h3>
-                <div id="admin-offices-list" class="space-y-3">
-                    <p class="text-xs text-base-content/60">جاري التحميل...</p>
-                </div>
-            </div>
-
-            <!-- TAB 2: PENDING APPROVALS -->
-            <div id="tab-pending" class="tab-pane hidden space-y-4">
-                <div class="alert alert-warning text-xs py-3 shadow-sm">
-                    <i class="fa-solid fa-clock-history"></i>
-                    <span><strong>طلبات الإضافة المعلقة:</strong> الطلبات القادمة عبر رابط التسجيل الخارجي تتطلب إقرار المشرف قبل تفعيلها.</span>
-                </div>
-                <div id="pending-offices-list" class="space-y-3">
-                    <p class="text-xs text-base-content/60">جاري جلب الطلبات المعلقة...</p>
-                </div>
-            </div>
-
-            <!-- TAB 3: DRIVER REPORTS -->
-            <div id="tab-reports" class="tab-pane hidden space-y-4">
-                <div class="alert alert-error text-xs py-3 shadow-sm text-white">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span><strong>تبليغات السائقين:</strong> البلاغات والشكاوى الواردة مباشرة من السائقين حول المكاتب.</span>
-                </div>
-                <div id="reports-list" class="space-y-3">
-                    <p class="text-xs text-base-content/60">جاري تحميل البلاغات...</p>
-                </div>
-            </div>
-
-            <!-- TAB 4: LINK GENERATOR -->
-            <div id="tab-link-gen" class="tab-pane hidden">
-                <div class="card bg-base-100 shadow border border-base-300">
-                    <div class="card-body p-6 gap-3">
-                        <h3 class="font-bold text-base text-primary flex items-center gap-2">
-                            <i class="fa-solid fa-link"></i> رابط التسجيل الخارجي للمكاتب
-                        </h3>
-                        <p class="text-xs text-base-content/70">انسخ هذا الرابط وأرسله لأصحاب المكاتب أو الفروع لإدخال بياناتهم وتثبيت إحداثيات موقعهم على الخريطة بأنفسهم:</p>
-
-                        <div class="flex gap-2 my-2">
-                            <input type="text" id="generated-link-input" dir="ltr" readonly class="input input-bordered w-full text-xs font-bold text-primary bg-base-200" />
-                            <button id="btn-copy-link" class="btn btn-primary text-white text-xs font-bold gap-1 whitespace-nowrap">
-                                <i class="fa-solid fa-copy"></i> نسخ الرابط
-                            </button>
+                <!-- PANE 5: WHITELISTED ADMINS -->
+                <div id="pane-admins" class="pane-content hidden space-y-4">
+                    <div class="card bg-base-100 shadow border border-base-300">
+                        <div class="card-body p-5 gap-3">
+                            <h3 class="font-bold text-base text-primary flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus"></i> إضافة مشرف جديد معتمد
+                            </h3>
+                            <p class="text-xs text-base-content/60">أدخل بريد Google الإلكتروني للمشرف للسماح له بالدخول للوحة التحكم:</p>
+                            
+                            <div class="flex gap-2">
+                                <input type="email" id="new-admin-email" placeholder="example@gmail.com" class="input input-bordered w-full text-sm" dir="ltr" />
+                                <button id="btn-add-admin-email" class="btn btn-primary text-white font-bold text-xs whitespace-nowrap">
+                                    إضافة مشرف ➕
+                                </button>
+                            </div>
                         </div>
+                    </div>
 
-                        <a id="btn-share-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2">
-                            <i class="fa-brands fa-whatsapp text-lg"></i> مشاركة عبر واتساب
-                        </a>
+                    <h3 class="font-bold text-sm text-base-content/80">قائمة المشرفين المصرح لهم حالياً:</h3>
+                    <div id="whitelisted-admins-list" class="space-y-2">
+                        <p class="text-xs text-base-content/60">جاري تحميل قائمة المشرفين...</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- TAB 5: AUDIT LOG -->
-            <div id="tab-audit" class="tab-pane hidden">
-                <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات والتعديلات (Audit Log):</h3>
-                <div id="audit-logs-list" class="space-y-2">
-                    <p class="text-xs text-base-content/60">جاري تحميل سجل العمليات...</p>
+                <!-- PANE 6: AUDIT LOG -->
+                <div id="pane-audit" class="pane-content hidden space-y-2">
+                    <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات (Audit Trail Log):</h3>
+                    <div id="audit-logs-list" class="space-y-2">
+                        <p class="text-xs text-base-content/60">جاري تحميل السجل...</p>
+                    </div>
                 </div>
+
             </div>
 
+            <!-- Corporate Sidebar Drawer Navigation -->
+            <div class="drawer-side z-40">
+                <label for="dashboard-drawer" class="drawer-overlay"></label>
+                <aside class="bg-base-100 w-72 min-h-screen border-l border-base-300 p-4 flex flex-col justify-between shadow-xl">
+                    <div class="space-y-6">
+                        <!-- Sidebar Header -->
+                        <div class="flex items-center gap-3 px-2 py-3 border-b border-base-200">
+                            <div class="p-2.5 rounded-xl bg-emerald-600 text-white">
+                                <i class="fa-solid fa-truck-ramp-box text-xl"></i>
+                            </div>
+                            <div>
+                                <h1 class="font-bold text-base text-base-content">إدارة مكاتب التوديع</h1>
+                                <p class="text-[11px] text-emerald-600 font-semibold">العراق 🇮🇶 Corporate</p>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Menu Items -->
+                        <ul class="menu p-0 gap-1.5 text-sm font-semibold">
+                            <li>
+                                <button class="sidebar-btn active gap-3 py-3" data-pane="pane-offices" data-title="🏬 المكاتب الفعالة والمعتمدة">
+                                    <i class="fa-solid fa-store text-lg text-emerald-600"></i> المكاتب الفعالة
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-btn gap-3 py-3 justify-between" data-pane="pane-pending" data-title="⏳ طلبات الإضافة المعلقة">
+                                    <span class="flex items-center gap-3"><i class="fa-solid fa-hourglass-half text-lg text-amber-500"></i> الطلبات المعلقة</span>
+                                    <span id="pending-sidebar-badge" class="badge badge-warning badge-sm font-bold">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-btn gap-3 py-3 justify-between" data-pane="pane-reports" data-title="🚨 تبليغات السائقين والشكاوى">
+                                    <span class="flex items-center gap-3"><i class="fa-solid fa-triangle-exclamation text-lg text-rose-500"></i> تبليغات السائقين</span>
+                                    <span id="reports-sidebar-badge" class="badge badge-error text-white badge-sm font-bold">0</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-btn gap-3 py-3" data-pane="pane-link-gen" data-title="🔗 مولد رابط التسجيل الخارجي">
+                                    <i class="fa-solid fa-link text-lg text-sky-500"></i> مولد الروابط
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-btn gap-3 py-3" data-pane="pane-admins" data-title="👥 إدارة المشرفين والمستخدمين">
+                                    <i class="fa-solid fa-users-gear text-lg text-indigo-500"></i> إدارة المشرفين
+                                </button>
+                            </li>
+                            <li>
+                                <button class="sidebar-btn gap-3 py-3" data-pane="pane-audit" data-title="📜 سجل العمليات (Audit Log)">
+                                    <i class="fa-solid fa-list-check text-lg text-slate-500"></i> سجل العمليات Log
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Sidebar Footer -->
+                    <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
+                        نظام إدارة المكاتب v2.5 • Iraq
+                    </div>
+                </aside>
+            </div>
         </div>
-    </div>
 
     <!-- Map Pin Picker Modal Dialog -->
     <dialog id="map-modal-dialog" class="modal modal-bottom sm:modal-middle">
@@ -276,7 +337,7 @@
             <h3 class="font-bold text-base mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-map-pin text-primary"></i> تثبيت الموقع الجغرافي دقيقاً على الخريطة
             </h3>
-            <p class="text-xs text-base-content/60 mb-3">اسحب العلامة (Pin) لتعديل موقع المكتب بالضبط:</p>
+            <p class="text-xs text-base-content/60 mb-3">اسحب الدبوس بالأصابع لتعديل موقع المكتب بالضبط:</p>
             
             <div id="admin-map-picker" class="w-full h-64 rounded-xl border border-base-300 mb-4 shadow-inner"></div>
             
@@ -297,8 +358,8 @@
     <!-- Firebase JS SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
@@ -311,33 +372,44 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
         const db = getFirestore(app);
 
         const FALLBACK_PIN = "12345";
         let isLocalPinAuth = false;
-        let currentUserEmail = "أدمن النظام";
+        let currentUserEmail = "";
 
         let activeOfficesCache = [];
         let pendingOfficesCache = [];
         let reportsCache = [];
+        let whitelistedAdmins = ["conh727@gmail.com"];
 
-        // Tab Switching Logic
-        const tabBtns = document.querySelectorAll('.tab');
-        tabBtns.forEach(btn => {
+        // Sidebar Navigation Tabs Switch
+        const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+        sidebarBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                tabBtns.forEach(b => b.classList.remove('tab-active'));
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+                sidebarBtns.forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
+                document.querySelectorAll('.pane-content').forEach(p => p.classList.add('hidden'));
 
-                btn.classList.add('tab-active');
-                const targetTab = btn.getAttribute('data-tab');
-                document.getElementById(targetTab).classList.remove('hidden');
+                btn.classList.add('active', 'bg-primary', 'text-white');
+                const targetPane = btn.getAttribute('data-pane');
+                const paneTitle = btn.getAttribute('data-title');
 
-                if (targetTab === 'tab-pending') loadPendingOffices();
-                if (targetTab === 'tab-reports') loadReports();
-                if (targetTab === 'tab-audit') loadAuditLogs();
+                document.getElementById(targetPane).classList.remove('hidden');
+                document.getElementById('section-header-title').textContent = paneTitle;
+
+                // Close Mobile Drawer
+                const drawerToggle = document.getElementById('dashboard-drawer');
+                if (drawerToggle) drawerToggle.checked = false;
+
+                if (targetPane === 'pane-pending') loadPendingOffices();
+                if (targetPane === 'pane-reports') loadReports();
+                if (targetPane === 'pane-admins') loadWhitelistedAdmins();
+                if (targetPane === 'pane-audit') loadAuditLogs();
             });
         });
 
+        // Initialize Registration Link Generator URL
         const currentOrigin = window.location.origin + window.location.pathname.replace('admin.html', '');
         const registerFullUrl = currentOrigin + 'register.html';
         document.getElementById('generated-link-input').value = registerFullUrl;
@@ -349,10 +421,35 @@
 
         document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل وتحديث بيانات مكاتب التوديع للسائقين في العراق: ' + registerFullUrl)}`;
 
-        onAuthStateChanged(auth, (user) => {
+        // Load Whitelisted Admins List from Firestore
+        async function fetchAdminWhitelist() {
+            try {
+                const snapshot = await getDocs(collection(db, "whitelisted_admins"));
+                snapshot.forEach(d => {
+                    const em = d.data().email;
+                    if (em && !whitelistedAdmins.includes(em.toLowerCase())) {
+                        whitelistedAdmins.push(em.toLowerCase());
+                    }
+                });
+            } catch (e) {}
+        }
+
+        // Auth Listener
+        onAuthStateChanged(auth, async (user) => {
+            await fetchAdminWhitelist();
+
             if (user || isLocalPinAuth) {
-                currentUserEmail = user ? user.email : "أدمن النظام";
-                document.getElementById('user-display-email').textContent = `مرحباً بك: ${currentUserEmail}`;
+                currentUserEmail = user ? user.email.toLowerCase() : "admin@delivery.iq";
+
+                // Verify Whitelist Permission
+                if (user && !whitelistedAdmins.includes(currentUserEmail) && !isLocalPinAuth) {
+                    document.getElementById('access-denied-alert').classList.remove('hidden');
+                    await signOut(auth);
+                    showLoginScreen();
+                    return;
+                }
+
+                document.getElementById('user-display-email').textContent = currentUserEmail;
                 showAdminPanel();
             } else {
                 showLoginScreen();
@@ -372,11 +469,20 @@
             document.getElementById('admin-panel').classList.add('hidden');
         }
 
-        document.getElementById('btn-login').addEventListener('click', async () => {
+        // Google Sign-In Login Trigger
+        document.getElementById('btn-google-login').addEventListener('click', async () => {
+            document.getElementById('access-denied-alert').classList.add('hidden');
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (err) {
+                console.error("Google sign-in error:", err);
+            }
+        });
+
+        // Fallback Email/PIN Login Trigger
+        document.getElementById('btn-login-fallback').addEventListener('click', async () => {
             const emailInput = document.getElementById('login-email').value.trim();
             const passwordInput = document.getElementById('login-password').value.trim();
-
-            if (!emailInput || !passwordInput) return alert("يرجى إدخال البيانات!");
 
             if (passwordInput === FALLBACK_PIN || emailInput === FALLBACK_PIN) {
                 isLocalPinAuth = true;
@@ -387,7 +493,7 @@
             try {
                 await signInWithEmailAndPassword(auth, emailInput, passwordInput);
             } catch (err) {
-                alert("رمز المرور أو الحساب غير صحيح!");
+                alert("بيانات الدخول غير صحيحة!");
             }
         });
 
@@ -408,7 +514,7 @@
             } catch (e) {}
         }
 
-        // --- TAB 1: ACTIVE OFFICES ---
+        // --- PANE 1: ACTIVE OFFICES ---
         async function loadAdminOffices() {
             const container = document.getElementById('admin-offices-list');
             container.innerHTML = '<p class="text-xs text-base-content/60">جاري التحميل...</p>';
@@ -439,7 +545,7 @@
             row.className = "card bg-base-100 shadow-sm border border-base-300";
 
             row.innerHTML = `
-                <div class="card-body p-3 flex-row justify-between items-center">
+                <div class="card-body p-3.5 flex-row justify-between items-center">
                     <div>
                         <h4 class="font-bold text-sm text-base-content">${escapeHtml(office.name)}</h4>
                         <p class="text-xs text-base-content/70 mt-0.5">
@@ -447,7 +553,6 @@
                         </p>
                     </div>
 
-                    <!-- DaisyUI Dropdown Menu -->
                     <div class="dropdown dropdown-left">
                         <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm">
                             <i class="fa-solid fa-ellipsis-vertical text-base"></i>
@@ -474,10 +579,10 @@
             return row;
         }
 
-        // --- TAB 2: PENDING APPROVALS ---
+        // --- PANE 2: PENDING APPROVALS ---
         async function loadPendingOffices() {
             const container = document.getElementById('pending-offices-list');
-            const badgeCount = document.getElementById('pending-count');
+            const badgeSidebar = document.getElementById('pending-sidebar-badge');
 
             try {
                 const snapshot = await getDocs(collection(db, "pending_offices"));
@@ -492,7 +597,7 @@
                     }
                 });
 
-                badgeCount.textContent = pendingOfficesCache.length;
+                badgeSidebar.textContent = pendingOfficesCache.length;
 
                 if (pendingOfficesCache.length === 0) {
                     container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد طلبات معلقة بانتظار الموافقة. ✨</p>';
@@ -506,7 +611,7 @@
                         <div class="card-body p-4 gap-2">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-bold text-base text-base-content">${escapeHtml(pend.name)}</h4>
+                                    <h4 class="font-bold text-base text-base-content">${escapeHtml(pend.name)} ${pend.requestCode ? `<span class="badge badge-neutral text-xs font-mono">${pend.requestCode}</span>` : ''}</h4>
                                     <p class="text-xs text-base-content/70">📍 ${escapeHtml(pend.governorate)} - ${escapeHtml(pend.district || '')}</p>
                                 </div>
                                 <span class="badge badge-warning text-xs font-bold gap-1"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
@@ -561,10 +666,10 @@
             }
         }
 
-        // --- TAB 3: DRIVER REPORTS ---
+        // --- PANE 3: DRIVER REPORTS ---
         async function loadReports() {
             const container = document.getElementById('reports-list');
-            const badgeCount = document.getElementById('reports-count');
+            const badgeSidebar = document.getElementById('reports-sidebar-badge');
 
             try {
                 const snapshot = await getDocs(collection(db, "reports"));
@@ -577,7 +682,7 @@
                     reportsCache.push(data);
                 });
 
-                badgeCount.textContent = reportsCache.length;
+                badgeSidebar.textContent = reportsCache.length;
 
                 if (reportsCache.length === 0) {
                     container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد بلاغات حالياً. 👍</p>';
@@ -587,7 +692,6 @@
                 reportsCache.forEach(rep => {
                     const card = document.createElement('div');
                     card.className = 'card bg-base-100 shadow-sm border border-base-300';
-
                     const dateStr = new Date(rep.timestamp || Date.now()).toLocaleDateString('ar-IQ');
 
                     card.innerHTML = `
@@ -599,7 +703,7 @@
                             <p class="text-xs font-bold text-base-content">المكتب: ${escapeHtml(rep.officeName)}</p>
                             ${rep.note ? `<p class="text-xs text-base-content/80 bg-base-200/60 p-2 rounded">${escapeHtml(rep.note)}</p>` : ''}
                             
-                            <button class="btn btn-success btn-xs text-white btn-resolve-rep mt-1 gap-1">
+                            <button class="btn btn-success btn-xs text-white btn-resolve-rep mt-1 gap-1 font-bold">
                                 <i class="fa-solid fa-check"></i> تم المعالجة وحذف البلاغ
                             </button>
                         </div>
@@ -617,7 +721,73 @@
             }
         }
 
-        // --- TAB 5: AUDIT LOG ---
+        // --- PANE 5: WHITELISTED ADMINS ---
+        async function loadWhitelistedAdmins() {
+            const container = document.getElementById('whitelisted-admins-list');
+            container.innerHTML = '<p class="text-xs text-base-content/60">جاري التحميل...</p>';
+
+            try {
+                const snapshot = await getDocs(collection(db, "whitelisted_admins"));
+                container.innerHTML = '';
+
+                let admins = [];
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    data.id = docSnap.id;
+                    admins.push(data);
+                });
+
+                if (admins.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لم يتم إضافة مشرفين مخصصين بعد (يتم استخدام النمط الافتراضي).</p>';
+                    return;
+                }
+
+                admins.forEach(adm => {
+                    const row = document.createElement('div');
+                    row.className = 'flex justify-between items-center p-3 bg-base-100 rounded-lg border border-base-300 shadow-sm';
+                    row.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-user-check text-emerald-600"></i>
+                            <span class="font-bold text-xs" dir="ltr">${escapeHtml(adm.email)}</span>
+                        </div>
+                        <button class="btn btn-error btn-ghost btn-xs btn-del-admin text-error" data-id="${adm.id}" data-email="${escapeHtml(adm.email)}">
+                            <i class="fa-solid fa-user-minus"></i> حذف
+                        </button>
+                    `;
+
+                    row.querySelector('.btn-del-admin').onclick = async () => {
+                        if (confirm(`هل أنت متأكد من إلغاء صلاحية المشرف "${adm.email}"؟`)) {
+                            await deleteDoc(doc(db, "whitelisted_admins", adm.id));
+                            loadWhitelistedAdmins();
+                        }
+                    };
+
+                    container.appendChild(row);
+                });
+            } catch (e) {
+                container.innerHTML = '<p class="text-xs text-error">فشل جلب قائمة المشرفين.</p>';
+            }
+        }
+
+        document.getElementById('btn-add-admin-email').addEventListener('click', async () => {
+            const emailInp = document.getElementById('new-admin-email').value.trim().toLowerCase();
+            if (!emailInp || !emailInp.includes('@')) return alert("يرجى إدخال بريد إلكتروني صحيح!");
+
+            try {
+                await addDoc(collection(db, "whitelisted_admins"), {
+                    email: emailInp,
+                    addedBy: currentUserEmail,
+                    addedAt: Date.now()
+                });
+                document.getElementById('new-admin-email').value = '';
+                loadWhitelistedAdmins();
+                alert("تم إضافة المشرف بنجاح! ✅");
+            } catch (e) {
+                alert("حدث خطأ أثناء إضافة المشرف.");
+            }
+        });
+
+        // --- PANE 6: AUDIT LOG ---
         async function loadAuditLogs() {
             const container = document.getElementById('audit-logs-list');
             try {
@@ -687,7 +857,7 @@
                 await logAudit("تحديث الموقع الجغرافي بالخريطة", officeObj ? officeObj.name : 'مكتب');
                 document.getElementById('map-modal-dialog').close();
                 loadAdminOffices();
-                alert("تم تحديث إحداثيات الموقع بنجاح! 📍");
+                alert("تم تحديث موقع الدبوس بنجاح! 📍");
             } catch (e) {
                 alert("حدث خطأ أثناء الحفظ!");
             }
@@ -707,8 +877,6 @@
             document.getElementById('office-close-time').value = office.closeTime || '22:00';
             document.getElementById('office-phone').value = office.phone || '';
             document.getElementById('office-map-link').value = office.mapUrl || office.url || office.link || '';
-            document.getElementById('office-lat').value = office.lat || '';
-            document.getElementById('office-lng').value = office.lng || '';
             document.getElementById('office-desc').value = office.desc || '';
 
             document.getElementById('form-title').innerText = "تعديل بيانات المكتب ✏️";
@@ -727,8 +895,6 @@
             document.getElementById('office-close-time').value = '22:00';
             document.getElementById('office-phone').value = '';
             document.getElementById('office-map-link').value = '';
-            document.getElementById('office-lat').value = '';
-            document.getElementById('office-lng').value = '';
             document.getElementById('office-desc').value = '';
 
             document.getElementById('form-title').innerText = "إضافة مكتب توديع جديد ➕";
@@ -748,8 +914,6 @@
             const closeTime = document.getElementById('office-close-time').value;
             const phone = document.getElementById('office-phone').value.trim();
             const mapUrl = document.getElementById('office-map-link').value.trim();
-            const lat = document.getElementById('office-lat').value.trim();
-            const lng = document.getElementById('office-lng').value.trim();
             const desc = document.getElementById('office-desc').value.trim();
             const editId = document.getElementById('edit-doc-id').value;
 
@@ -767,8 +931,6 @@
                 closeTime,
                 phone,
                 mapUrl,
-                lat,
-                lng,
                 desc,
                 updatedAt: Date.now()
             };

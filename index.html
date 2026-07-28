@@ -29,22 +29,22 @@
     <div class="max-w-2xl mx-auto p-4">
         
         <!-- Header Hero / Navbar -->
-        <header class="navbar bg-gradient-to-r from-emerald-800 to-teal-600 text-primary-content rounded-2xl shadow-xl mb-4 p-4">
-            <div class="flex-1 flex flex-col items-start gap-1">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-truck-ramp-box text-2xl text-amber-300"></i>
+        <header class="navbar bg-gradient-to-r from-emerald-800 to-teal-600 text-primary-content rounded-2xl shadow-xl mb-4 p-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-truck-ramp-box text-2xl text-amber-300"></i>
+                <div>
                     <h1 class="text-xl font-bold tracking-tight">مكاتب التوديع لسائقي التوصيل 🇮🇶</h1>
+                    <p class="text-xs opacity-90">الدليل التفاعلي السريع لمكاتب التوديع في محافظات العراق</p>
                 </div>
-                <p class="text-xs opacity-90">الدليل التفاعلي السريع لمكاتب التوديع في محافظات العراق</p>
             </div>
-            <div class="flex-none">
-                <span id="pwa-status" class="badge badge-accent gap-1 font-semibold text-xs shadow">
-                    <i class="fa-solid fa-bolt"></i> مباشر
-                </span>
-            </div>
+            
+            <!-- Hidden Search & Filter Trigger Button -->
+            <button id="btn-toggle-filter" class="btn btn-circle btn-neutral shadow border-0 text-amber-300 hover:scale-105 transition-transform" title="خيارات البحث والفلترة">
+                <i class="fa-solid fa-sliders text-lg"></i>
+            </button>
         </header>
 
-        <!-- Status Banner -->
+        <!-- Dynamic Status Banner -->
         <div id="status-banner" class="alert alert-neutral shadow-md mb-4 flex justify-between items-center text-sm py-3">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-circle-info text-info"></i>
@@ -55,10 +55,17 @@
             </span>
         </div>
 
-        <!-- Controls Card: Search, Governorate Filter & GPS -->
-        <div class="card bg-base-100 shadow-md mb-6 border border-base-300">
+        <!-- Hidden Filter Panel (Collapsible / Toggleable) -->
+        <div id="filter-panel" class="card bg-base-100 shadow-lg mb-6 border border-emerald-500/30 hidden">
             <div class="card-body p-4 gap-3">
-                <!-- Search Box -->
+                <div class="flex justify-between items-center border-b border-base-200 pb-2">
+                    <h3 class="font-bold text-sm text-primary flex items-center gap-2">
+                        <i class="fa-solid fa-filter"></i> تصفية وتصفح المكاتب
+                    </h3>
+                    <button id="btn-close-filter" class="btn btn-ghost btn-xs text-base-content/60">إغلاق ✖</button>
+                </div>
+
+                <!-- Search Input -->
                 <div class="relative w-full">
                     <input type="text" id="search-input" placeholder="ابحث باسم المكتب، المحافظة، أو المنطقة..." class="input input-bordered w-full pr-10 bg-base-200 text-sm focus:input-primary" />
                     <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/50">
@@ -66,9 +73,9 @@
                     </span>
                 </div>
 
-                <!-- Filter Controls Row -->
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <select id="governorate-select" class="select select-bordered w-full sm:w-2/3 text-sm font-medium focus:select-primary">
+                <!-- Governorate Selector & Sort -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <select id="governorate-select" class="select select-bordered w-full text-sm font-medium focus:select-primary">
                         <option value="ALL">جميع المحافظات (العراق)</option>
                         <option value="بغداد - الكرخ">بغداد - الكرخ</option>
                         <option value="بغداد - الرصافة">بغداد - الرصافة</option>
@@ -91,10 +98,17 @@
                         <option value="كركوك">كركوك</option>
                     </select>
 
-                    <button id="btn-gps" class="btn btn-outline btn-primary w-full sm:w-1/3 gap-2 text-xs font-bold">
-                        <i class="fa-solid fa-location-crosshairs text-base"></i> الأقرب لي
-                    </button>
+                    <select id="sort-select" class="select select-bordered w-full text-sm font-medium focus:select-primary">
+                        <option value="DEFAULT">الترتيب الافتراضي</option>
+                        <option value="NAME_ASC">الاسم: تصاعدي (أ - ي)</option>
+                        <option value="NAME_DESC">الاسم: تنازلي (ي - أ)</option>
+                        <option value="DISTRICT">حسب اسم المنطقة</option>
+                    </select>
                 </div>
+
+                <button id="btn-gps" class="btn btn-outline btn-primary w-full gap-2 text-xs font-bold mt-1">
+                    <i class="fa-solid fa-location-crosshairs text-base"></i> الأقرب لي (حسب موقع الـ GPS)
+                </button>
             </div>
         </div>
 
@@ -103,18 +117,9 @@
             <!-- Dynamic Office Cards Rendered Here -->
         </main>
 
-        <!-- Footer -->
+        <!-- Footer (Clean & Isolated) -->
         <footer class="footer footer-center p-6 bg-base-100 text-base-content rounded-2xl shadow-md border border-base-300 mt-8">
-            <div class="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
-                <a href="register.html" class="link link-primary flex items-center gap-1">
-                    <i class="fa-solid fa-pen-to-square"></i> إضافة أو تسجيل مكتب 📝
-                </a>
-                <span class="text-base-content/30">•</span>
-                <a href="admin.html" class="link link-secondary flex items-center gap-1">
-                    <i class="fa-solid fa-user-shield"></i> لوحة المشرفين 🔐
-                </a>
-            </div>
-            <p class="text-xs text-base-content/60">خدمة خيرية مجانية لسائقي التوصيل في كافة المحافظات العراقية 🇮🇶</p>
+            <p class="text-xs text-base-content/70 font-semibold">خدمة خيرية مجانية لسائقي التوصيل في كافة المحافظات العراقية 🇮🇶</p>
         </footer>
     </div>
 
@@ -159,7 +164,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW reg error:', err));
@@ -183,6 +187,14 @@
 
         let allOffices = [];
         let userLocation = null;
+
+        // Toggle Filter Panel
+        document.getElementById('btn-toggle-filter').addEventListener('click', () => {
+            document.getElementById('filter-panel').classList.toggle('hidden');
+        });
+        document.getElementById('btn-close-filter').addEventListener('click', () => {
+            document.getElementById('filter-panel').classList.add('hidden');
+        });
 
         function updateOnlineStatus() {
             const offlineTag = document.getElementById('offline-tag');
@@ -273,6 +285,7 @@
         function applyFiltersAndRender() {
             const selectedGov = document.getElementById('governorate-select').value;
             const searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+            const sortMode = document.getElementById('sort-select').value;
 
             let filtered = allOffices.filter(office => {
                 if (selectedGov !== 'ALL') {
@@ -294,6 +307,7 @@
                 return true;
             });
 
+            // Distance sorting if GPS available
             if (userLocation) {
                 filtered.forEach(off => {
                     if (off.lat && off.lng) {
@@ -308,6 +322,15 @@
                     if (b.distanceKm === null) return -1;
                     return parseFloat(a.distanceKm) - parseFloat(b.distanceKm);
                 });
+            } else {
+                // Apply dropdown sorting
+                if (sortMode === 'NAME_ASC') {
+                    filtered.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
+                } else if (sortMode === 'NAME_DESC') {
+                    filtered.sort((a, b) => (b.name || '').localeCompare(a.name || '', 'ar'));
+                } else if (sortMode === 'DISTRICT') {
+                    filtered.sort((a, b) => (a.district || '').localeCompare(b.district || '', 'ar'));
+                }
             }
 
             renderOffices(filtered);
@@ -333,7 +356,6 @@
 
                 card.innerHTML = `
                     <div class="card-body p-4 sm:p-5 gap-3">
-                        <!-- Top Header -->
                         <div class="flex justify-between items-start gap-2">
                             <div>
                                 <div class="flex items-center gap-2">
@@ -349,10 +371,8 @@
                             </span>
                         </div>
 
-                        <!-- Description -->
                         <p class="text-sm text-base-content/80 leading-relaxed bg-base-200/50 p-2.5 rounded-lg border border-base-200">${escapeHtml(office.desc || 'لا يوجد وصف خاص بهذا المكتب حالياً.')}</p>
 
-                        <!-- Meta Info Row -->
                         <div class="flex justify-between items-center text-xs text-base-content/70 border-t border-base-200 pt-3">
                             <div class="flex items-center gap-3">
                                 ${office.distanceKm ? `<span class="font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200"><i class="fa-solid fa-route"></i> المسافة: ${office.distanceKm} كم</span>` : ''}
@@ -363,7 +383,6 @@
                             </button>
                         </div>
 
-                        <!-- Main Action Button -->
                         <button class="btn btn-primary btn-block text-white gap-2 font-bold text-sm shadow-md mt-1 btn-navigate" data-link="${escapeHtml(safeMapLink)}">
                             <i class="fa-solid fa-map-location-dot text-lg"></i> توجه إلى المكتب عبر Google Maps
                         </button>
@@ -431,7 +450,7 @@
                 <div class="card bg-base-100 shadow border border-base-300 text-center p-8">
                     <i class="fa-solid fa-magnifying-glass text-4xl text-base-content/30 mb-3"></i>
                     <h3 class="font-bold text-base mb-1">لم يتم العثور على مكاتب</h3>
-                    <p class="text-xs text-base-content/60">جرب تغيير المحافظة أو نص البحث للحصول على نتائج.</p>
+                    <p class="text-xs text-base-content/60">جرب تغيير المحافظة أو خيارات البحث والترتيب.</p>
                 </div>
             `;
         }
@@ -442,6 +461,7 @@
         }
 
         document.getElementById('governorate-select').addEventListener('change', applyFiltersAndRender);
+        document.getElementById('sort-select').addEventListener('change', applyFiltersAndRender);
         document.getElementById('search-input').addEventListener('input', applyFiltersAndRender);
 
         document.getElementById('btn-gps').addEventListener('click', () => {
@@ -459,12 +479,12 @@
                         lat: pos.coords.latitude,
                         lng: pos.coords.longitude
                     };
-                    btnGps.className = "btn btn-success text-white w-full sm:w-1/3 gap-2 text-xs font-bold";
-                    btnGps.innerHTML = `<i class="fa-solid fa-check"></i> تم التحديد`;
+                    btnGps.className = "btn btn-success text-white w-full gap-2 text-xs font-bold";
+                    btnGps.innerHTML = `<i class="fa-solid fa-check"></i> تم التحديد بنجاح`;
                     applyFiltersAndRender();
                 },
                 (err) => {
-                    btnGps.innerHTML = `<i class="fa-solid fa-location-crosshairs text-base"></i> الأقرب لي`;
+                    btnGps.innerHTML = `<i class="fa-solid fa-location-crosshairs text-base"></i> الأقرب لي (حسب موقع الـ GPS)`;
                     alert("تعذر تحديد موقعك الحالي.");
                 },
                 { enableHighAccuracy: true, timeout: 8000 }
