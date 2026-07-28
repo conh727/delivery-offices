@@ -22,6 +22,11 @@ service cloud.firestore {
       allow read, create: if true;
     }
 
+    // System Errors & Failed Attempts Log
+    match /system_errors/{errorId} {
+      allow read, create: if true;
+    }
+
     // Audit Trail Log & Whitelisted Admins
     match /audit_logs/{logId} {
       allow read, write: if true;

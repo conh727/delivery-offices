@@ -113,17 +113,17 @@
                         </div>
                     </div>
 
-                    <!-- Clear Choice for Phone Visibility (Hidden by Default vs Visible) -->
+                    <!-- Clean Choice for Phone Visibility -->
                     <div class="form-control w-full bg-base-200/60 p-3.5 rounded-xl border border-base-300 space-y-2">
-                        <label class="label py-0"><span class="label-text font-bold text-xs text-primary">هل ترغب بإظهار رقم الهاتف لسائقي التوصيل في التطبيق؟</span></label>
+                        <label class="label py-0"><span class="label-text font-bold text-xs text-primary">إظهار رقم الهاتف للسائقين؟</span></label>
                         <div class="flex flex-col sm:flex-row gap-3 pt-1">
-                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold bg-base-100 p-2 rounded-lg border border-base-300 flex-1">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold bg-base-100 p-2.5 rounded-lg border border-base-300 flex-1">
                                 <input type="radio" name="reg-phone-visibility" value="hidden" checked class="radio radio-primary radio-xs" id="radio-phone-hide" />
-                                🔒 إخفاء رقم الهاتف (تلقائي ومستحسن)
+                                🔒 لا (إخفاء الرقم)
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold bg-base-100 p-2 rounded-lg border border-base-300 flex-1">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold bg-base-100 p-2.5 rounded-lg border border-base-300 flex-1">
                                 <input type="radio" name="reg-phone-visibility" value="visible" class="radio radio-primary radio-xs" id="radio-phone-show" />
-                                📞 إظهار رقم الهاتف علنياً للسائقين
+                                📞 نعم (إظهار الرقم للسائقين)
                             </label>
                         </div>
                     </div>
@@ -411,9 +411,9 @@
 
             const phone = document.getElementById('reg-phone').value.trim();
             
-            // Explicit Choice for Phone Visibility (Default: Hidden)
+            // Explicit Choice for Phone Visibility
             const radioPhoneShow = document.getElementById('radio-phone-show');
-            const showPhone = radioPhoneShow.checked; // true if owner clicked "إظهار علنياً", false by default
+            const showPhone = radioPhoneShow.checked;
 
             const openTime = document.getElementById('reg-open-time').value;
             const closeTime = document.getElementById('reg-close-time').value;
@@ -441,7 +441,7 @@
                 district,
                 phone,
                 officeNumber: phone,
-                showNumber: showPhone, // Saved choice (false by default)
+                showNumber: showPhone,
                 openTime,
                 closeTime,
                 mapUrl,
