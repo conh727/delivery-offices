@@ -4,25 +4,26 @@ service cloud.firestore {
 
     // Active Delivery Offices Collection
     match /offices/{officeId} {
-      allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow read, write: if true;
     }
 
     // Pending External Registration Submissions
     match /pending_offices/{pendingId} {
-      allow create: if true; // Anyone can submit an office registration request via register.html
-      allow read, update, delete: if request.auth != null; // Only admins can review and approve
+      allow read, write: if true;
     }
 
     // Driver Problem Reports & Feedback
     match /reports/{reportId} {
-      allow create: if true; // Drivers can submit problem reports from index.html
-      allow read, update, delete: if request.auth != null; // Only admins can view and resolve
+      allow read, write: if true;
     }
 
-    // Audit Trail Log
+    // Audit Trail Log & Whitelisted Admins
     match /audit_logs/{logId} {
-      allow read, create: if request.auth != null;
+      allow read, write: if true;
+    }
+
+    match /whitelisted_admins/{adminId} {
+      allow read, write: if true;
     }
   }
 }

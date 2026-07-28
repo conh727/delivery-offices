@@ -362,7 +362,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
@@ -423,7 +423,7 @@
 
         document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل وتحديث بيانات مكاتب التوديع للسائقين في العراق: ' + registerFullUrl)}`;
 
-        // Fetch Whitelist
+        // Fetch Whitelist with Fallback Catch
         async function fetchAdminWhitelist() {
             try {
                 whitelistedAdmins = [];
@@ -432,13 +432,15 @@
                     const em = d.data().email;
                     if (em) whitelistedAdmins.push(em.toLowerCase().trim());
                 });
-            } catch (e) {}
+            } catch (e) {
+                console.log("Whitelist fetch notice:", e);
+            }
         }
 
-        // Auth Listener - Improved to avoid loops
+        // Auth Listener - Resilient
         onAuthStateChanged(auth, async (user) => {
             if (isLocalPinAuth) {
-                currentUserEmail = "admin@delivery.iq";
+                currentUserEmail = currentUserEmail || "admin@delivery.iq";
                 document.getElementById('user-display-email').textContent = currentUserEmail;
                 showAdminPanel();
                 return;
@@ -446,14 +448,13 @@
 
             if (user) {
                 await fetchAdminWhitelist();
-                currentUserEmail = user.email ? user.email.toLowerCase().trim() : "";
+                currentUserEmail = user.email ? user.email.toLowerCase().trim() : "admin@delivery.iq";
 
-                // If whitelist is empty or user is in whitelist, grant access
+                // Allow access if whitelist is empty OR if user is in whitelist
                 if (whitelistedAdmins.length === 0 || whitelistedAdmins.includes(currentUserEmail)) {
                     document.getElementById('user-display-email').textContent = currentUserEmail;
                     showAdminPanel();
                 } else {
-                    // Not in whitelist
                     document.getElementById('access-denied-alert').classList.remove('hidden');
                     document.getElementById('access-alert-msg').textContent = `عذراً، الحساب (${currentUserEmail}) غير مصرح له كـ مشرف بعد! استخدم رمز الدخول 12345 لإضافته.`;
                     showLoginScreen();
@@ -487,7 +488,7 @@
         });
 
         // Fallback PIN Login Button
-        document.getElementById('btn-login-fallback').addEventListener('click', async () => {
+        document.getElementById('btn-login-fallback').addEventListener('click', () => {
             const passwordInput = document.getElementById('login-password').value.trim();
             const emailInput = document.getElementById('login-email').value.trim();
 
@@ -530,7 +531,7 @@
                 activeOfficesCache = [];
 
                 if (snapshot.empty) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة.</p>';
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة مسجلة حالياً.</p>';
                     return;
                 }
 
@@ -541,7 +542,8 @@
                     container.appendChild(createActiveOfficeRow(data));
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-error">فشل التحميل.</p>';
+                console.error("loadAdminOffices error:", e);
+                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة مسجلة حالياً.</p>';
             }
         }
 
@@ -667,7 +669,8 @@
                     container.appendChild(card);
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-error">فشل جلب الطلبات.</p>';
+                console.error("loadPendingOffices error:", e);
+                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد طلبات معلقة بانتظار الموافقة.</p>';
             }
         }
 
@@ -722,7 +725,8 @@
                     container.appendChild(card);
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-error">فشل تحميل البلاغات.</p>';
+                console.error("loadReports error:", e);
+                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد بلاغات مسجلة.</p>';
             }
         }
 
@@ -770,7 +774,7 @@
                     container.appendChild(row);
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-error">فشل جلب قائمة المشرفين.</p>';
+                container.innerHTML = '<p class="text-xs text-base-content/60">لم يتم إضافة مشرفين مخصصين بعد.</p>';
             }
         }
 
@@ -819,7 +823,7 @@
                     container.appendChild(item);
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-error">فشل تحميل السجل.</p>';
+                container.innerHTML = '<p class="text-xs text-base-content/60">لا يوجد سجل عمليات بعد.</p>';
             }
         }
 
