@@ -102,21 +102,28 @@
                         </div>
                     </div>
 
-                    <!-- Single Phone Input & Default Hidden Checkbox -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
-                            <div class="relative">
-                                <input type="tel" id="reg-phone" placeholder="مثال: 07701234567" class="input input-bordered w-full pr-9 text-sm focus:input-primary" required />
-                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
-                                    <i class="fa-solid fa-phone"></i>
-                                </span>
-                            </div>
+                    <!-- Single Phone Input -->
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
+                        <div class="relative">
+                            <input type="tel" id="reg-phone" placeholder="مثال: 07701234567" class="input input-bordered w-full pr-9 text-sm focus:input-primary" required />
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
+                                <i class="fa-solid fa-phone"></i>
+                            </span>
                         </div>
-                        <div class="form-control">
-                            <label class="label cursor-pointer justify-start gap-2.5 border border-base-300 rounded-xl p-2.5 bg-base-200/50">
-                                <input type="checkbox" id="reg-show-phone" class="checkbox checkbox-primary checkbox-sm" />
-                                <span class="label-text font-semibold text-xs">إظهار رقم الهاتف للسائقين (مخفي تلقائياً)</span>
+                    </div>
+
+                    <!-- Clear Choice for Phone Visibility (Hidden by Default vs Visible) -->
+                    <div class="form-control w-full bg-base-200/60 p-3.5 rounded-xl border border-base-300 space-y-2">
+                        <label class="label py-0"><span class="label-text font-bold text-xs text-primary">هل ترغب بإظهار رقم الهاتف لسائقي التوصيل في التطبيق؟</span></label>
+                        <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold bg-base-100 p-2 rounded-lg border border-base-300 flex-1">
+                                <input type="radio" name="reg-phone-visibility" value="hidden" checked class="radio radio-primary radio-xs" id="radio-phone-hide" />
+                                🔒 إخفاء رقم الهاتف (تلقائي ومستحسن)
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold bg-base-100 p-2 rounded-lg border border-base-300 flex-1">
+                                <input type="radio" name="reg-phone-visibility" value="visible" class="radio radio-primary radio-xs" id="radio-phone-show" />
+                                📞 إظهار رقم الهاتف علنياً للسائقين
                             </label>
                         </div>
                     </div>
@@ -403,7 +410,10 @@
             }
 
             const phone = document.getElementById('reg-phone').value.trim();
-            const showPhone = document.getElementById('reg-show-phone').checked; // Default false (hidden)
+            
+            // Explicit Choice for Phone Visibility (Default: Hidden)
+            const radioPhoneShow = document.getElementById('radio-phone-show');
+            const showPhone = radioPhoneShow.checked; // true if owner clicked "إظهار علنياً", false by default
 
             const openTime = document.getElementById('reg-open-time').value;
             const closeTime = document.getElementById('reg-close-time').value;
@@ -431,7 +441,7 @@
                 district,
                 phone,
                 officeNumber: phone,
-                showNumber: showPhone, // Default false
+                showNumber: showPhone, // Saved choice (false by default)
                 openTime,
                 closeTime,
                 mapUrl,
