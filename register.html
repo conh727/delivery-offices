@@ -44,13 +44,13 @@
             </div>
         </header>
 
-        <!-- Main Card Form -->
+        <!-- Main Form Card -->
         <div class="card bg-base-100 shadow-md border border-base-300">
             <div class="card-body p-5 gap-4">
                 
                 <div class="alert alert-info shadow-sm text-xs py-3">
                     <i class="fa-solid fa-circle-info text-base"></i>
-                    <span><strong>ملاحظة:</strong> سيتم مراجعة الطلب وتدقيقه من قبل المشرفين قبل الاعتماد النهائي في التطبيق.</span>
+                    <span><strong>ملاحظة:</strong> سيتم مراجعة طلبك وتدقيقه من قبل المشرفين قبل الاعتماد والظهور في التطبيق.</span>
                 </div>
 
                 <form id="register-form" onsubmit="return false;" class="space-y-4">
@@ -66,7 +66,7 @@
                         </div>
                     </div>
 
-                    <!-- Governorate & Branch/District -->
+                    <!-- Governorate & Dynamic Iraqi Districts -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="form-control w-full">
                             <label class="label"><span class="label-text font-bold text-xs">المحافظة *</span></label>
@@ -95,29 +95,18 @@
 
                         <div class="form-control w-full">
                             <label class="label"><span class="label-text font-bold text-xs">اسم الفرع / المنطقة *</span></label>
-                            <input type="text" id="reg-district" placeholder="مثال: فرع المنصور / الحارثية" class="input input-bordered w-full text-sm focus:input-primary" required />
+                            <select id="reg-district-select" class="select select-bordered w-full text-sm">
+                                <!-- Dynamic options loaded via JS -->
+                            </select>
+                            <input type="text" id="reg-district-custom" placeholder="اكتب اسم المنطقة يدوياً..." class="input input-bordered w-full text-sm mt-2 hidden" />
                         </div>
                     </div>
 
-                    <!-- Office Number & Show Checkbox -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">رقم المكتب (اختياري)</span></label>
-                            <input type="text" id="reg-number" placeholder="مثال: 12" class="input input-bordered w-full text-sm" />
-                        </div>
-                        <div class="form-control">
-                            <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
-                                <input type="checkbox" id="reg-show-number" class="checkbox checkbox-primary checkbox-sm" />
-                                <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Phone Contact -->
+                    <!-- Single Unified Office Phone / Number -->
                     <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-bold text-xs">رقم هاتف المكتب للتواصل</span></label>
+                        <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
                         <div class="relative">
-                            <input type="tel" id="reg-phone" placeholder="مثال: 07701234567" class="input input-bordered w-full pr-9 text-sm" />
+                            <input type="tel" id="reg-phone" placeholder="مثال: 07701234567" class="input input-bordered w-full pr-9 text-sm focus:input-primary" required />
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
                                 <i class="fa-solid fa-phone"></i>
                             </span>
@@ -136,38 +125,43 @@
                         </div>
                     </div>
 
-                    <!-- Google Maps Link -->
-                    <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل المباشر (Google Maps Link) *</span></label>
-                        <div class="relative">
-                            <input type="url" id="reg-map-url" placeholder="https://maps.app.goo.gl/..." dir="ltr" class="input input-bordered w-full text-left pr-9 text-sm focus:input-primary" required />
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                            </span>
+                    <!-- Location Selector: EITHER Interactive Map Pin OR Google Maps Link (Exclusive Choice) -->
+                    <div class="form-control w-full bg-base-200/50 p-3 rounded-xl border border-base-300 space-y-3">
+                        <label class="label py-0"><span class="label-text font-bold text-xs text-primary">طريقة تحديد موقع المكتب (اختر طريقة واحدة):</span></label>
+                        
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                                <input type="radio" name="location-type" value="map" checked class="radio radio-primary radio-xs" id="radio-loc-map" />
+                                📍 تحديد الموقع على الخريطة (مستحسن)
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                                <input type="radio" name="location-type" value="link" class="radio radio-primary radio-xs" id="radio-loc-link" />
+                                🔗 رابط خرائط جوجل
+                            </label>
+                        </div>
+
+                        <!-- Option A: Interactive Map Picker -->
+                        <div id="location-mode-map" class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] text-base-content/70">اضغط "موقعي الحالي" أو اسحب الدبوس بالأصابع:</span>
+                                <button type="button" id="btn-locate-me" class="btn btn-primary btn-xs gap-1 font-bold">
+                                    <i class="fa-solid fa-location-crosshairs"></i> موقعي الحالي
+                                </button>
+                            </div>
+                            <div id="map-picker" class="w-full h-56 rounded-xl border border-base-300 shadow-inner z-10"></div>
+                        </div>
+
+                        <!-- Option B: Google Maps Link Input -->
+                        <div id="location-mode-link" class="hidden space-y-1">
+                            <label class="label-text text-xs">رابط خرائط جوجل المباشر (Google Maps Link):</label>
+                            <input type="url" id="reg-map-url" placeholder="https://maps.app.goo.gl/..." dir="ltr" class="input input-bordered w-full text-left text-sm" />
                         </div>
                     </div>
 
-                    <!-- Interactive Drag & Drop Map Pin Selector -->
-                    <div class="form-control w-full">
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="label-text font-bold text-xs">📍 حدد الموقع بدقة بسحب الدبوس على الخريطة:</label>
-                            <button type="button" id="btn-locate-me" class="btn btn-ghost btn-xs text-primary gap-1">
-                                <i class="fa-solid fa-location-crosshairs"></i> موقعي الحالي
-                            </button>
-                        </div>
-                        <div id="map-picker" class="w-full h-64 rounded-xl border border-base-300 shadow-inner z-10"></div>
-                        <p class="text-[11px] text-base-content/60 mt-1">يمكنك ضبط وتثبيت الدبوس بالأصابع بكل سهولة على موقع المكتب.</p>
-                    </div>
-
-                    <!-- Description & Owner Contact -->
+                    <!-- Description -->
                     <div class="form-control w-full">
                         <label class="label"><span class="label-text font-bold text-xs">تفاصيل إضافية / وصف العلامات القريبة</span></label>
                         <textarea id="reg-desc" rows="2" placeholder="مثال: بالقرب من محطة الوقود، المدخل الخلفي..." class="textarea textarea-bordered text-sm"></textarea>
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-bold text-xs">اسم/بريد شخص للتواصل عند الاعتماد *</span></label>
-                        <input type="text" id="reg-owner-contact" placeholder="اسمك أو بريدك الإلكتروني لمتابعة الطلب" class="input input-bordered w-full text-sm" required />
                     </div>
 
                     <!-- Submit Button -->
@@ -199,12 +193,12 @@
 
     <!-- Success Modal Dialog -->
     <dialog id="success-modal-dialog" class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box text-center">
+        <div class="modal-box text-center py-6">
             <div class="text-5xl text-emerald-500 mb-3"><i class="fa-solid fa-circle-check"></i></div>
-            <h3 class="font-bold text-xl text-emerald-700 mb-1">تم إرسال الطلب بنجاح!</h3>
+            <h3 class="font-bold text-xl text-emerald-700 mb-2">شكراً لك، تم إرسال طلبك بنجاح!</h3>
             <p class="text-xs text-neutral font-bold mb-3">كود الطلب الخاص بك: <span id="success-req-code" class="text-primary font-mono text-sm">REQ-0000</span></p>
-            <p class="text-sm text-base-content/70 leading-relaxed mb-4">
-                شكراً لمساهمتك. تم حفظ طلب إدخال المكتب وسيقوم مشرفو النظام بمراجعته واعتماده ليظهر لسائقي التوصيل في العراق.
+            <p class="text-sm text-base-content/80 leading-relaxed mb-6 bg-base-200/60 p-3 rounded-xl border border-base-300">
+                يرجى الانتظار خلال 24 ساعة أو أقل ليتم مراجعته وإضافته في التطبيق بعد تدقيق المشرفين.
             </p>
             <div class="modal-action justify-center">
                 <button id="btn-modal-close" class="btn btn-primary text-white w-full font-bold">تم، إغلاق 👍</button>
@@ -231,6 +225,83 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Iraqi Governorates Districts Data
+        const iraqDistrictsMap = {
+            "بغداد - الكرخ": ["المنصور", "الحارثية", "اليرموك", "السيدية", "العامرية", "الغزالية", "الدورة", "الكاظمية", "حي الجامعة", "منطقة أخرى (إدخال يدوي)"],
+            "بغداد - الرصافة": ["الكرادة", "الجادرية", "زيونة", "شارع فلسطين", "الأعظمية", "الشعب", "بغداد الجديدة", "حي أور", "منطقة أخرى (إدخال يدوي)"],
+            "البصرة": ["العشار", "القبلة", "الجبيلة", "الطويسة", "المعقل", "الجزائر", "حي الحسين", "أبي الخصيب", "الزبير", "شط العرب", "منطقة أخرى (إدخال يدوي)"],
+            "نينوى (الموصل)": ["الموصل الجانب الأيمن", "الموصل الجانب الأيسر", "حي الزهور", "حي المجموعة الثقافية", "تلعفر", "منطقة أخرى (إدخال يدوي)"],
+            "أربيل": ["مركز أربيل", "عينكاوة", "شارع 60", "شارع 100", "حي الشرطة", "منطقة أخرى (إدخال يدوي)"],
+            "النجف الأشرف": ["مركز المدينة", "حي الحنانة", "حي السعادة", "حي الأمير", "الكوفة", "منطقة أخرى (إدخال يدوي)"],
+            "كربلاء المقدسة": ["مركز المدينة", "شارع السنتر", "حي الحسين", "حي الموظفين", "حي رمضان", "منطقة أخرى (إدخال يدوي)"],
+            "بابل (الحلة)": ["مركز الحلة", "حي نادر", "حي الجمعية", "شارع 40", "المحاويل", "منطقة أخرى (إدخال يدوي)"],
+            "واسط (الكوت)": ["الكوت المركز", "حي الهورة", "حي الزهراء", "حي العزة", "منطقة أخرى (إدخال يدوي)"],
+            "ديالي (بعقوبة)": ["بعقوبة المركز", "حي المعلمين", "حي المصطفى", "المقدادية", "منطقة أخرى (إدخال يدوي)"],
+            "ذي قار (الناصرية)": ["الناصرية المركز", "حي الصالحية", "حي سومر", "الشترة", "منطقة أخرى (إدخال يدوي)"],
+            "القادسية (الديوانية)": ["الديوانية المركز", "حي العروبة", "حي الجزائر", "منطقة أخرى (إدخال يدوي)"],
+            "ميسان (العمارة)": ["العمارة المركز", "حي المعلمين", "حي القطاع", "منطقة أخرى (إدخال يدوي)"],
+            "المثنى (السماوة)": ["السماوة المركز", "حي الغربي", "حي الشرطة", "منطقة أخرى (إدخال يدوي)"],
+            "الأنبار (الرمادي)": ["الرمادي المركز", "الفلوجة", "حي التأميم", "حي المعلمين", "منطقة أخرى (إدخال يدوي)"],
+            "صلاح الدين (تكريت)": ["تكريت المركز", "سامراء", "بلد", "حي القادسية", "منطقة أخرى (إدخال يدوي)"],
+            "السليمانية": ["مركز السليمانية", "سرجنار", "عقاري", "منطقة أخرى (إدخال يدوي)"],
+            "دهوك": ["مركز دهوك", "حي ماسيك", "حي شيلادزي", "منطقة أخرى (إدخال يدوي)"],
+            "كركوك": ["مركز كركوك", "طريق بغداد", "حي واسط", "حي المصلى", "منطقة أخرى (إدخال يدوي)"]
+        };
+
+        const govSelect = document.getElementById('reg-governorate');
+        const districtSelect = document.getElementById('reg-district-select');
+        const districtCustomInput = document.getElementById('reg-district-custom');
+
+        function updateDistrictsList() {
+            const selectedGov = govSelect.value;
+            const districts = iraqDistrictsMap[selectedGov] || ["مركز المحافظة", "منطقة أخرى (إدخال يدوي)"];
+
+            districtSelect.innerHTML = '';
+            districts.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d;
+                districtSelect.appendChild(opt);
+            });
+
+            checkCustomDistrict();
+        }
+
+        function checkCustomDistrict() {
+            if (districtSelect.value === "منطقة أخرى (إدخال يدوي)") {
+                districtCustomInput.classList.remove('hidden');
+                districtCustomInput.required = true;
+            } else {
+                districtCustomInput.classList.add('hidden');
+                districtCustomInput.required = false;
+            }
+        }
+
+        govSelect.addEventListener('change', updateDistrictsList);
+        districtSelect.addEventListener('change', checkCustomDistrict);
+        updateDistrictsList();
+
+        // Location Mode Radio Toggles (Interactive Map OR Google Maps Link)
+        const radioLocMap = document.getElementById('radio-loc-map');
+        const radioLocLink = document.getElementById('radio-loc-link');
+        const modeMap = document.getElementById('location-mode-map');
+        const modeLink = document.getElementById('location-mode-link');
+
+        radioLocMap.addEventListener('change', () => {
+            if (radioLocMap.checked) {
+                modeMap.classList.remove('hidden');
+                modeLink.classList.add('hidden');
+                setTimeout(() => map.invalidateSize(), 200);
+            }
+        });
+
+        radioLocLink.addEventListener('change', () => {
+            if (radioLocLink.checked) {
+                modeLink.classList.remove('hidden');
+                modeMap.classList.add('hidden');
+            }
+        });
 
         // Generate Random Request Code
         const generatedReqCode = 'REQ-' + Math.floor(1000 + Math.random() * 9000);
@@ -262,7 +333,7 @@
             selectedLng = e.latlng.lng;
         });
 
-        // 10 Seconds GPS Countdown Location Trigger
+        // 10 Seconds GPS Countdown Trigger
         document.getElementById('btn-locate-me').addEventListener('click', () => {
             if (!navigator.geolocation) {
                 alert("خاصية تحديد الموقع غير مدعومة في متصفحك.");
@@ -317,15 +388,28 @@
 
             const name = document.getElementById('reg-name').value.trim();
             const governorate = document.getElementById('reg-governorate').value;
-            const district = document.getElementById('reg-district').value.trim();
-            const officeNumber = document.getElementById('reg-number').value.trim();
-            const showNumber = document.getElementById('reg-show-number').checked;
+            
+            let district = districtSelect.value;
+            if (district === "منطقة أخرى (إدخال يدوي)") {
+                district = districtCustomInput.value.trim();
+            }
+
             const phone = document.getElementById('reg-phone').value.trim();
             const openTime = document.getElementById('reg-open-time').value;
             const closeTime = document.getElementById('reg-close-time').value;
-            const mapUrl = document.getElementById('reg-map-url').value.trim();
             const desc = document.getElementById('reg-desc').value.trim();
-            const ownerContact = document.getElementById('reg-owner-contact').value.trim();
+
+            let mapUrl = "";
+            let lat = "";
+            let lng = "";
+
+            if (radioLocLink.checked) {
+                mapUrl = document.getElementById('reg-map-url').value.trim();
+                if (!mapUrl) return alert("يرجى إدخال رابط خرائط جوجل!");
+            } else {
+                lat = selectedLat.toFixed(5);
+                lng = selectedLng.toFixed(5);
+            }
 
             const submitBtn = document.getElementById('btn-submit-reg');
             submitBtn.disabled = true;
@@ -335,16 +419,14 @@
                 name,
                 governorate,
                 district,
-                officeNumber,
-                showNumber,
                 phone,
+                officeNumber: phone, // Unified phone/office number
                 openTime,
                 closeTime,
                 mapUrl,
-                lat: selectedLat.toFixed(5),
-                lng: selectedLng.toFixed(5),
+                lat,
+                lng,
                 desc,
-                ownerContact,
                 status: "pending",
                 submittedAt: Date.now()
             };

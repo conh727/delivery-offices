@@ -22,11 +22,12 @@
 
     <style>
         * { font-family: 'Readex Pro', system-ui, sans-serif; }
+        .selectable-text { user-select: text; -webkit-user-select: text; }
     </style>
 </head>
 <body class="bg-base-200 min-h-screen text-base-content">
 
-    <!-- Login Screen (Pure Google Sign-In Only) -->
+    <!-- Login Screen -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="card bg-base-100 shadow-2xl border border-base-300 w-full max-w-md">
             <div class="card-body p-8 text-center gap-4">
@@ -49,7 +50,7 @@
         </div>
     </div>
 
-    <!-- Corporate Dashboard Layout (Flexbox Responsive Sidebar) -->
+    <!-- Corporate Dashboard Layout -->
     <div id="admin-panel" class="hidden min-h-screen flex flex-col md:flex-row">
         
         <!-- Sidebar Navigation -->
@@ -105,7 +106,7 @@
 
             <!-- Sidebar Footer -->
             <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                نظام إدارة المكاتب v3.0 • Iraq
+                نظام إدارة المكاتب v3.5 • Iraq
             </div>
         </aside>
 
@@ -132,9 +133,11 @@
             <div id="pane-offices" class="pane-content space-y-4">
                 <div class="card bg-base-100 shadow border border-base-300">
                     <div class="card-body p-5 gap-3">
-                        <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
-                            <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
-                        </h3>
+                        <div class="flex justify-between items-center">
+                            <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
+                                <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
+                            </h3>
+                        </div>
                         <input type="hidden" id="edit-doc-id" value="">
 
                         <div class="form-control w-full">
@@ -174,17 +177,9 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                            <div class="form-control w-full">
-                                <label class="label"><span class="label-text font-bold text-xs">رقم المكتب</span></label>
-                                <input type="text" id="office-number" class="input input-bordered w-full text-sm" placeholder="رقم" />
-                            </div>
-                            <div class="form-control">
-                                <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
-                                    <input type="checkbox" id="show-number-check" class="checkbox checkbox-primary checkbox-sm" />
-                                    <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
-                                </label>
-                            </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">رقم هاتف / مكتب التواصل *</span></label>
+                            <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
@@ -198,14 +193,23 @@
                             </div>
                         </div>
 
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">رقم الهاتف</span></label>
-                            <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
-                        </div>
+                        <!-- Location Choice: Link OR Map Pin -->
+                        <div class="form-control w-full bg-base-200/60 p-3 rounded-xl border border-base-300 space-y-2">
+                            <label class="label py-0"><span class="label-text font-bold text-xs">طريقة تحديد الموقع (رابط إما موقع بالخريطة):</span></label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                                    <input type="radio" name="admin-loc-type" value="map" checked class="radio radio-primary radio-xs" id="admin-loc-map-rad" />
+                                    📍 موقع بالخريطة
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                                    <input type="radio" name="admin-loc-type" value="link" class="radio radio-primary radio-xs" id="admin-loc-link-rad" />
+                                    🔗 رابط خرائط جوجل
+                                </label>
+                            </div>
 
-                        <div class="form-control w-full">
-                            <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل (Google Maps Link) *</span></label>
-                            <input type="url" id="office-map-link" dir="ltr" class="input input-bordered w-full text-left text-sm" placeholder="https://maps.app.goo.gl/..." />
+                            <div id="admin-loc-link-box" class="hidden">
+                                <input type="url" id="office-map-link" dir="ltr" class="input input-bordered input-sm w-full text-left" placeholder="https://maps.app.goo.gl/..." />
+                            </div>
                         </div>
 
                         <div class="form-control w-full">
@@ -232,7 +236,7 @@
             <div id="pane-pending" class="pane-content hidden space-y-4">
                 <div class="alert alert-warning text-xs py-3 shadow-sm">
                     <i class="fa-solid fa-clock-history"></i>
-                    <span><strong>طلبات التسجيل المعلقة:</strong> الطلبات القادمة عبر رابط التسجيل تتطلب موافقتك قبل النشر.</span>
+                    <span><strong>طلبات التسجيل المعلقة:</strong> اختر إما <strong>الموافقة المباشرة</strong> لإضافة المكتب أو <strong>الحذف الفوري</strong>.</span>
                 </div>
                 <div id="pending-offices-list" class="space-y-3">
                     <p class="text-xs text-base-content/60">جاري جلب الطلبات المعلقة...</p>
@@ -243,7 +247,7 @@
             <div id="pane-reports" class="pane-content hidden space-y-4">
                 <div class="alert alert-error text-xs py-3 shadow-sm text-white">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span><strong>تبليغات السائقين:</strong> البلاغات الواردة من واجهة السائقين.</span>
+                    <span><strong>تبليغات السائقين:</strong> يمكن قراءة وحفظ البلاغات، أو تحديد ونسخ محتواها، أو حذفها عند الانتهاء.</span>
                 </div>
                 <div id="reports-list" class="space-y-3">
                     <p class="text-xs text-base-content/60">جاري تحميل البلاغات...</p>
@@ -273,33 +277,45 @@
                 </div>
             </div>
 
-            <!-- PANE 5: WHITELISTED ADMINS -->
+            <!-- PANE 5: WHITELISTED ADMINS & ROLES -->
             <div id="pane-admins" class="pane-content hidden space-y-4">
-                <div class="card bg-base-100 shadow border border-base-300">
-                    <div class="card-body p-5 gap-3">
-                        <h3 class="font-bold text-base text-primary flex items-center gap-2">
-                            <i class="fa-solid fa-user-plus"></i> إضافة مشرف جديد معتمد
-                        </h3>
-                        <p class="text-xs text-base-content/60">أدخل بريد Google الإلكتروني للمشرف للسماح له بالدخول للوحة التحكم:</p>
-                        
-                        <div class="flex gap-2">
-                            <input type="email" id="new-admin-email" placeholder="example@gmail.com" class="input input-bordered w-full text-sm" dir="ltr" />
-                            <button id="btn-add-admin-email" class="btn btn-primary text-white font-bold text-xs whitespace-nowrap">
-                                إضافة مشرف ➕
+                <div id="admin-permission-denied-box" class="alert alert-warning shadow text-xs hidden">
+                    <i class="fa-solid fa-lock text-lg"></i>
+                    <span><strong>تنبيه:</strong> لا تملك صلاحية في هذا القسم. إضافة وإلغاء المشرفين متاح للمالك والمشرفين ذوي الصلاحيات الكاملة فقط.</span>
+                </div>
+
+                <div id="admin-management-content" class="space-y-4">
+                    <div class="card bg-base-100 shadow border border-base-300">
+                        <div class="card-body p-5 gap-3">
+                            <h3 class="font-bold text-base text-primary flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus"></i> إضافة مشرف جديد وتحديد الصلاحية
+                            </h3>
+                            <p class="text-xs text-base-content/60">أدخل بريد Google الإلكتروني للمشرف وحدد نوع الصلاحية الممنوحة له:</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <input type="email" id="new-admin-email" placeholder="example@gmail.com" class="input input-bordered text-sm sm:col-span-2" dir="ltr" />
+                                <select id="new-admin-role" class="select select-bordered text-xs font-bold">
+                                    <option value="full">👑 مشرف عام (صلاحيات كاملة)</option>
+                                    <option value="limited">🔒 مشرف محدد (قراءة ومتابعة فقط)</option>
+                                </select>
+                            </div>
+
+                            <button id="btn-add-admin-email" class="btn btn-primary text-white font-bold text-xs mt-2">
+                                إضافة المشرف ➕
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <h3 class="font-bold text-sm text-base-content/80">قائمة المشرفين المصرح لهم حالياً:</h3>
-                <div id="whitelisted-admins-list" class="space-y-2">
-                    <p class="text-xs text-base-content/60">جاري تحميل قائمة المشرفين...</p>
+                    <h3 class="font-bold text-sm text-base-content/80">قائمة المشرفين والصلاحيات:</h3>
+                    <div id="whitelisted-admins-list" class="space-y-2">
+                        <p class="text-xs text-base-content/60">جاري تحميل قائمة المشرفين...</p>
+                    </div>
                 </div>
             </div>
 
             <!-- PANE 6: AUDIT LOG -->
             <div id="pane-audit" class="pane-content hidden space-y-2">
-                <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات (Audit Trail Log):</h3>
+                <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات الدقيق (Audit Trail Log):</h3>
                 <div id="audit-logs-list" class="space-y-2">
                     <p class="text-xs text-base-content/60">جاري تحميل السجل...</p>
                 </div>
@@ -336,7 +352,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
@@ -353,9 +369,24 @@
         const db = getFirestore(app);
 
         let currentUserEmail = "";
+        let currentUserRole = "full"; // Default full access for owner
+
         let activeOfficesCache = [];
         let pendingOfficesCache = [];
         let reportsCache = [];
+        let adminsCache = [];
+
+        // Location Radio Handler in Admin Form
+        const locMapRad = document.getElementById('admin-loc-map-rad');
+        const locLinkRad = document.getElementById('admin-loc-link-rad');
+        const locLinkBox = document.getElementById('admin-loc-link-box');
+
+        locMapRad.addEventListener('change', () => {
+            if (locMapRad.checked) locLinkBox.classList.add('hidden');
+        });
+        locLinkRad.addEventListener('change', () => {
+            if (locLinkRad.checked) locLinkBox.classList.remove('hidden');
+        });
 
         // Sidebar Navigation Tabs Switch
         const sidebarBtns = document.querySelectorAll('.sidebar-btn');
@@ -390,10 +421,34 @@
 
         document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل وتحديث بيانات مكاتب التوديع للسائقين في العراق: ' + registerFullUrl)}`;
 
+        // Check Admin Role
+        async function fetchAdminRole(email) {
+            try {
+                const snapshot = await getDocs(collection(db, "whitelisted_admins"));
+                adminsCache = [];
+                let foundRole = "full"; // Default owner role if list empty
+
+                snapshot.forEach(d => {
+                    const data = d.data();
+                    data.id = d.id;
+                    adminsCache.push(data);
+                    if (data.email && data.email.toLowerCase().trim() === email.toLowerCase().trim()) {
+                        foundRole = data.role || "full";
+                    }
+                });
+
+                currentUserRole = foundRole;
+            } catch (e) {
+                currentUserRole = "full";
+            }
+        }
+
         // Auth Listener - Pure Google Auth Only
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserEmail = user.email ? user.email.toLowerCase().trim() : "مشرف المكاتب";
+                await fetchAdminRole(currentUserEmail);
+
                 document.getElementById('user-display-email').textContent = currentUserEmail;
                 showAdminPanel();
             } else {
@@ -416,7 +471,7 @@
             document.getElementById('admin-panel').classList.remove('flex');
         }
 
-        // Google Login Button Trigger
+        // Google Login Trigger
         document.getElementById('btn-google-login').addEventListener('click', async () => {
             try {
                 await signInWithPopup(auth, googleProvider);
@@ -477,7 +532,7 @@
                     <div>
                         <h4 class="font-bold text-sm text-base-content">${escapeHtml(office.name)}</h4>
                         <p class="text-xs text-base-content/70 mt-0.5">
-                            📍 ${escapeHtml(office.governorate || '')} ${office.district ? '- ' + escapeHtml(office.district) : ''} | ⏰ ${escapeHtml(office.openTime || '08:00')} - ${escapeHtml(office.closeTime || '22:00')}
+                            📍 ${escapeHtml(office.governorate || '')} ${office.district ? '- ' + escapeHtml(office.district) : ''} | 📞 ${escapeHtml(office.phone || office.officeNumber || 'غير مسجل')} | ⏰ ${escapeHtml(office.openTime || '08:00')} - ${escapeHtml(office.closeTime || '22:00')}
                         </p>
                     </div>
 
@@ -499,7 +554,7 @@
             row.querySelector('.btn-del-act').onclick = async () => {
                 if (confirm(`هل أنت متأكد من حذف مكتب "${office.name}"؟`)) {
                     await deleteDoc(doc(db, "offices", office.id));
-                    await logAudit("حذف مكتب", office.name);
+                    await logAudit("قام بحذف مكتب", office.name);
                     loadAdminOffices();
                 }
             };
@@ -548,41 +603,40 @@
                             <p class="text-xs text-base-content/80 bg-base-200/50 p-2 rounded">${escapeHtml(pend.desc || 'بدون وصف إضافي')}</p>
 
                             <div class="text-xs text-base-content/60 flex flex-wrap gap-3">
-                                <span>👤 المقدم: <strong>${escapeHtml(pend.ownerContact || 'غير معروف')}</strong></span>
-                                <span>📞 الهاتف: <strong>${escapeHtml(pend.phone || 'غير مسجل')}</strong></span>
+                                <span>📞 الهاتف / التواصل: <strong>${escapeHtml(pend.phone || pend.officeNumber || 'غير مسجل')}</strong></span>
                             </div>
 
                             <div class="flex gap-2 mt-2">
                                 <button class="btn btn-success btn-xs text-white flex-1 gap-1 btn-approve font-bold">
-                                    <i class="fa-solid fa-circle-check"></i> موافقة واعتماد
+                                    <i class="fa-solid fa-circle-check"></i> موافقة مباشرة
                                 </button>
                                 <button class="btn btn-error btn-outline btn-xs gap-1 btn-reject font-bold">
-                                    <i class="fa-solid fa-circle-xmark"></i> رفض
+                                    <i class="fa-solid fa-trash"></i> حذف الطلب
                                 </button>
                             </div>
                         </div>
                     `;
 
                     card.querySelector('.btn-approve').onclick = async () => {
-                        if (confirm(`هل تريد موافقة واعتماد مكتب "${pend.name}"؟`)) {
+                        if (confirm(`هل تريد موافقة مباشرة واعتمد مكتب "${pend.name}"؟`)) {
                             const approvedData = { ...pend, updatedAt: Date.now() };
                             delete approvedData.id;
                             delete approvedData.status;
 
                             await addDoc(collection(db, "offices"), approvedData);
                             await deleteDoc(doc(db, "pending_offices", pend.id));
-                            await logAudit("موافقة واعتماد مكتب جديد", pend.name);
+                            await logAudit("وافق على طلب مكتب", pend.name);
 
                             loadPendingOffices();
                             loadAdminOffices();
-                            alert("تمت الموافقة بنجاح! 🎉");
+                            alert("تمت الموافقة المباشرة بنجاح! 🎉");
                         }
                     };
 
                     card.querySelector('.btn-reject').onclick = async () => {
-                        if (confirm(`هل تريد رفض طلب مكتب "${pend.name}"؟`)) {
+                        if (confirm(`هل تريد حذف طلب مكتب "${pend.name}"؟`)) {
                             await deleteDoc(doc(db, "pending_offices", pend.id));
-                            await logAudit("رفض طلب مكتب", pend.name);
+                            await logAudit("حذف طلب مكتب معلق", pend.name);
                             loadPendingOffices();
                         }
                     };
@@ -613,7 +667,7 @@
                 badgeSidebar.textContent = reportsCache.length;
 
                 if (reportsCache.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد بلاغات حالياً. 👍</p>';
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد تبليغات حالياً. 👍</p>';
                     return;
                 }
 
@@ -625,58 +679,85 @@
                     card.innerHTML = `
                         <div class="card-body p-4 gap-2">
                             <div class="flex justify-between items-center text-xs">
-                                <strong class="text-error font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> بلاغ: ${escapeHtml(rep.reportType)}</strong>
+                                <strong class="text-error font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> تبليغ: ${escapeHtml(rep.reportType)}</strong>
                                 <span class="text-base-content/50">${dateStr}</span>
                             </div>
                             <p class="text-xs font-bold text-base-content">المكتب: ${escapeHtml(rep.officeName)}</p>
-                            ${rep.note ? `<p class="text-xs text-base-content/80 bg-base-200/60 p-2 rounded">${escapeHtml(rep.note)}</p>` : ''}
+                            ${rep.note ? `<p class="text-xs text-base-content/80 bg-base-200/60 p-2.5 rounded border border-base-300 selectable-text font-mono select-all">${escapeHtml(rep.note)}</p>` : ''}
                             
-                            <button class="btn btn-success btn-xs text-white btn-resolve-rep mt-1 gap-1 font-bold">
-                                <i class="fa-solid fa-check"></i> تم المعالجة وحذف البلاغ
-                            </button>
+                            <div class="flex gap-2 mt-2">
+                                <button class="btn btn-emerald btn-success btn-xs text-white flex-1 gap-1 btn-read-rep font-bold">
+                                    <i class="fa-solid fa-envelope-open-text"></i> تمت قراءة التبليغ
+                                </button>
+                                <button class="btn btn-error btn-outline btn-xs gap-1 btn-del-rep font-bold">
+                                    <i class="fa-solid fa-trash"></i> حذف التبليغ
+                                </button>
+                            </div>
                         </div>
                     `;
 
-                    card.querySelector('.btn-resolve-rep').onclick = async () => {
+                    card.querySelector('.btn-read-rep').onclick = async () => {
+                        await logAudit("قام بقراءة ومعالجة تبليغ", rep.officeName);
                         await deleteDoc(doc(db, "reports", rep.id));
                         loadReports();
+                        alert("تمت القراءة والمعالجة بنجاح! ✅");
+                    };
+
+                    card.querySelector('.btn-del-rep').onclick = async () => {
+                        if (confirm("هل تريد حذف هذا التبليغ؟")) {
+                            await logAudit("حذف تبليغ سائق", rep.officeName);
+                            await deleteDoc(doc(db, "reports", rep.id));
+                            loadReports();
+                        }
                     };
 
                     container.appendChild(card);
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد بلاغات مسجلة.</p>';
+                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد تبليغات مسجلة.</p>';
             }
         }
 
-        // --- PANE 5: WHITELISTED ADMINS ---
+        // --- PANE 5: WHITELISTED ADMINS & PERMISSIONS ---
         async function loadWhitelistedAdmins() {
+            const deniedBox = document.getElementById('admin-permission-denied-box');
+            const mgmtContent = document.getElementById('admin-management-content');
             const container = document.getElementById('whitelisted-admins-list');
+
+            // If limited admin role, block access
+            if (currentUserRole === 'limited') {
+                deniedBox.classList.remove('hidden');
+                mgmtContent.classList.add('hidden');
+                return;
+            }
+
+            deniedBox.classList.add('hidden');
+            mgmtContent.classList.remove('hidden');
             container.innerHTML = '<p class="text-xs text-base-content/60">جاري التحميل...</p>';
 
             try {
-                const snapshot = await getDocs(collection(db, "whitelisted_admins"));
+                await fetchAdminRole(currentUserEmail);
                 container.innerHTML = '';
 
-                let admins = [];
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    data.id = docSnap.id;
-                    admins.push(data);
-                });
-
-                if (admins.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">أنت المشرف الحالي! يمكنك إضافة مشرفين إضافيين أدناه.</p>';
+                if (adminsCache.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-base-content/60">أنت المالك/المشرف الحالي! يمكنك إضافة مشرفين وتحديد صلاحياتهم أدناه.</p>';
                     return;
                 }
 
-                admins.forEach(adm => {
+                adminsCache.forEach(adm => {
+                    const isFull = (adm.role || 'full') === 'full';
+                    const roleLabel = isFull ? '👑 مشرف عام (كامل)' : '🔒 مشرف محدد';
+                    const badgeClass = isFull ? 'badge-primary' : 'badge-neutral';
+
                     const row = document.createElement('div');
                     row.className = 'flex justify-between items-center p-3 bg-base-100 rounded-lg border border-base-300 shadow-sm';
                     row.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-user-check text-emerald-600"></i>
-                            <span class="font-bold text-xs" dir="ltr">${escapeHtml(adm.email)}</span>
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-shield ${isFull ? 'text-primary' : 'text-slate-500'}"></i>
+                            <div>
+                                <span class="font-bold text-xs block" dir="ltr">${escapeHtml(adm.email)}</span>
+                                <span class="badge ${badgeClass} text-[10px] font-bold mt-0.5">${roleLabel}</span>
+                            </div>
                         </div>
                         <button class="btn btn-error btn-ghost btn-xs btn-del-admin text-error" data-id="${adm.id}">
                             <i class="fa-solid fa-user-minus"></i> حذف
@@ -686,6 +767,7 @@
                     row.querySelector('.btn-del-admin').onclick = async () => {
                         if (confirm(`هل أنت متأكد من إلغاء صلاحية المشرف "${adm.email}"؟`)) {
                             await deleteDoc(doc(db, "whitelisted_admins", adm.id));
+                            await logAudit("قام بحذف مشرف", adm.email);
                             loadWhitelistedAdmins();
                         }
                     };
@@ -693,20 +775,28 @@
                     container.appendChild(row);
                 });
             } catch (e) {
-                container.innerHTML = '<p class="text-xs text-base-content/60">أنت المشرف الحالي! يمكنك إضافة مشرفين إضافيين أدناه.</p>';
+                container.innerHTML = '<p class="text-xs text-base-content/60">يمكنك إضافة مشرفين وتحديد صلاحياتهم أدناه.</p>';
             }
         }
 
         document.getElementById('btn-add-admin-email').addEventListener('click', async () => {
+            if (currentUserRole === 'limited') {
+                return alert("لا تملك صلاحية في هذا القسم!");
+            }
+
             const emailInp = document.getElementById('new-admin-email').value.trim().toLowerCase();
+            const roleInp = document.getElementById('new-admin-role').value;
+
             if (!emailInp || !emailInp.includes('@')) return alert("يرجى إدخال بريد إلكتروني صحيح!");
 
             try {
                 await addDoc(collection(db, "whitelisted_admins"), {
                     email: emailInp,
+                    role: roleInp,
                     addedBy: currentUserEmail,
                     addedAt: Date.now()
                 });
+                await logAudit(`قام بإضافة مشرف جديد (${roleInp})`, emailInp);
                 document.getElementById('new-admin-email').value = '';
                 loadWhitelistedAdmins();
                 alert("تم إضافة المشرف بنجاح! ✅");
@@ -737,7 +827,7 @@
                     item.className = 'bg-base-100 p-3 rounded-lg border-r-4 border-r-primary shadow-sm text-xs space-y-1';
                     item.innerHTML = `
                         <div class="font-bold text-base-content">${escapeHtml(l.actionType)}: <strong class="text-primary">${escapeHtml(l.officeName)}</strong></div>
-                        <div class="text-base-content/60 text-[11px]">بواسطة: ${escapeHtml(l.userEmail || 'المشرف')} | ⏱️ ${timeStr}</div>
+                        <div class="text-base-content/60 text-[11px]">بواسطة: <strong>${escapeHtml(l.userEmail || 'المشرف')}</strong> | ⏱️ ${timeStr}</div>
                     `;
                     container.appendChild(item);
                 });
@@ -782,7 +872,7 @@
                     lng: pos.lng.toFixed(5)
                 });
                 const officeObj = activeOfficesCache.find(o => o.id === activeMapOfficeId);
-                await logAudit("تحديث الموقع الجغرافي بالخريطة", officeObj ? officeObj.name : 'مكتب');
+                await logAudit("قام بتحديث الموقع الخريطة", officeObj ? officeObj.name : 'مكتب');
                 document.getElementById('map-modal-dialog').close();
                 loadAdminOffices();
                 alert("تم تحديث موقع الدبوس بنجاح! 📍");
@@ -799,12 +889,10 @@
             document.getElementById('office-name').value = office.name || '';
             document.getElementById('office-governorate').value = office.governorate || 'بغداد - الكرخ';
             document.getElementById('office-district').value = office.district || '';
-            document.getElementById('office-number').value = office.officeNumber || '';
-            document.getElementById('show-number-check').checked = office.showNumber || false;
             document.getElementById('office-open-time').value = office.openTime || '08:00';
             document.getElementById('office-close-time').value = office.closeTime || '22:00';
-            document.getElementById('office-phone').value = office.phone || '';
-            document.getElementById('office-map-link').value = office.mapUrl || office.url || office.link || '';
+            document.getElementById('office-phone').value = office.phone || office.officeNumber || '';
+            document.getElementById('office-map-link').value = office.mapUrl || '';
             document.getElementById('office-desc').value = office.desc || '';
 
             document.getElementById('form-title').innerText = "تعديل بيانات المكتب ✏️";
@@ -817,8 +905,6 @@
             document.getElementById('edit-doc-id').value = '';
             document.getElementById('office-name').value = '';
             document.getElementById('office-district').value = '';
-            document.getElementById('office-number').value = '';
-            document.getElementById('show-number-check').checked = false;
             document.getElementById('office-open-time').value = '08:00';
             document.getElementById('office-close-time').value = '22:00';
             document.getElementById('office-phone').value = '';
@@ -836,8 +922,6 @@
             const name = document.getElementById('office-name').value.trim();
             const governorate = document.getElementById('office-governorate').value;
             const district = document.getElementById('office-district').value.trim();
-            const officeNumber = document.getElementById('office-number').value.trim();
-            const showNumber = document.getElementById('show-number-check').checked;
             const openTime = document.getElementById('office-open-time').value;
             const closeTime = document.getElementById('office-close-time').value;
             const phone = document.getElementById('office-phone').value.trim();
@@ -845,7 +929,7 @@
             const desc = document.getElementById('office-desc').value.trim();
             const editId = document.getElementById('edit-doc-id').value;
 
-            if (!name || !mapUrl) return alert("يرجى أدخال اسم المكتب والرابط!");
+            if (!name) return alert("يرجى إدخال اسم المكتب!");
 
             if (!confirm("هل أنت متأكد من حفظ بيانات هذا المكتب؟")) return;
 
@@ -853,11 +937,10 @@
                 name,
                 governorate,
                 district,
-                officeNumber,
-                showNumber,
+                phone,
+                officeNumber: phone,
                 openTime,
                 closeTime,
-                phone,
                 mapUrl,
                 desc,
                 updatedAt: Date.now()
@@ -866,11 +949,11 @@
             try {
                 if (editId) {
                     await updateDoc(doc(db, "offices", editId), officeData);
-                    await logAudit("تعديل مكتب", name);
+                    await logAudit("عدل معلومات مكتب", name);
                 } else {
                     officeData.createdAt = Date.now();
                     await addDoc(collection(db, "offices"), officeData);
-                    await logAudit("إضافة مكتب جديد", name);
+                    await logAudit("قام بإضافة مكتب جديد", name);
                 }
                 resetForm();
                 loadAdminOffices();
