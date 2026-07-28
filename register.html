@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="emerald">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل مكتب / فرع توديع جديد 🇮🇶</title>
+    
+    <!-- DaisyUI & Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome 6 Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts: Readex Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { font-family: 'Readex Pro', system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-base-200 min-h-screen text-base-content pb-10">
+
+    <div class="max-w-2xl mx-auto p-4">
+        
+        <!-- Header -->
+        <header class="navbar bg-gradient-to-r from-emerald-700 to-teal-600 text-primary-content rounded-2xl shadow-xl mb-4 p-4">
+            <div class="flex-1 flex flex-col items-start gap-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-pen text-2xl text-amber-300"></i>
+                    <h1 class="text-xl font-bold tracking-tight">تسجيل مكتب / فرع توديع 📝</h1>
+                </div>
+                <p class="text-xs opacity-90">أدخل بيانات مكتبك لإضافته لدليل سائقي التوصيل في العراق</p>
+            </div>
+            <div class="flex-none">
+                <a href="index.html" class="btn btn-sm btn-ghost text-white gap-1">
+                    <i class="fa-solid fa-house"></i> الرئيسية
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Card Form -->
+        <div class="card bg-base-100 shadow-md border border-base-300">
+            <div class="card-body p-5 gap-4">
+                
+                <div class="alert alert-info shadow-sm text-xs py-3">
+                    <i class="fa-solid fa-circle-info text-base"></i>
+                    <span><strong>ملاحظة:</strong> سيتم مراجعة البيانات وتدقيقها من قبل إدارة النظام قبل تفعيلها في تطبيق السائقين.</span>
+                </div>
+
+                <form id="register-form" onsubmit="return false;" class="space-y-4">
+                    
+                    <!-- Main Office Name -->
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-bold text-xs">اسم المكتب الرئيسي *</span></label>
+                        <div class="relative">
+                            <input type="text" id="reg-name" placeholder="مثال: مكتب النجم للتوديع والشحن" class="input input-bordered w-full pr-9 text-sm focus:input-primary" required />
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
+                                <i class="fa-solid fa-building"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Governorate & Branch/District -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">المحافظة *</span></label>
+                            <select id="reg-governorate" class="select select-bordered w-full text-sm" required>
+                                <option value="بغداد - الكرخ">بغداد - الكرخ</option>
+                                <option value="بغداد - الرصافة">بغداد - الرصافة</option>
+                                <option value="البصرة">البصرة</option>
+                                <option value="نينوى (الموصل)">نينوى (الموصل)</option>
+                                <option value="أربيل">أربيل</option>
+                                <option value="النجف الأشرف">النجف الأشرف</option>
+                                <option value="كربلاء المقدسة">كربلاء المقدسة</option>
+                                <option value="بابل (الحلة)">بابل (الحلة)</option>
+                                <option value="واسط (الكوت)">واسط (الكوت)</option>
+                                <option value="ديالي (بعقوبة)">ديالي (بعقوبة)</option>
+                                <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
+                                <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
+                                <option value="ميسان (العمارة)">ميسان (العمارة)</option>
+                                <option value="المثنى (السماوة)">المثنى (السماوة)</option>
+                                <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
+                                <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
+                                <option value="السليمانية">السليمانية</option>
+                                <option value="دهوك">دهوك</option>
+                                <option value="كركوك">كركوك</option>
+                            </select>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">اسم الفرع / المنطقة *</span></label>
+                            <input type="text" id="reg-district" placeholder="مثال: فرع المنصور / الحارثية" class="input input-bordered w-full text-sm focus:input-primary" required />
+                        </div>
+                    </div>
+
+                    <!-- Office Number & Show Checkbox -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">رقم المكتب (اختياري)</span></label>
+                            <input type="text" id="reg-number" placeholder="مثال: 12" class="input input-bordered w-full text-sm" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
+                                <input type="checkbox" id="reg-show-number" class="checkbox checkbox-primary checkbox-sm" />
+                                <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Phone Contact -->
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-bold text-xs">رقم هاتف المكتب للتواصل</span></label>
+                        <div class="relative">
+                            <input type="tel" id="reg-phone" placeholder="مثال: 07701234567" class="input input-bordered w-full pr-9 text-sm" />
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
+                                <i class="fa-solid fa-phone"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Working Hours -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">وقت الفتح (الصباح)</span></label>
+                            <input type="time" id="reg-open-time" value="08:00" class="input input-bordered w-full text-sm" />
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">وقت الإغلاق (المساء)</span></label>
+                            <input type="time" id="reg-close-time" value="22:00" class="input input-bordered w-full text-sm" />
+                        </div>
+                    </div>
+
+                    <!-- Google Maps Link -->
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل المباشر (Google Maps Link) *</span></label>
+                        <div class="relative">
+                            <input type="url" id="reg-map-url" placeholder="https://maps.app.goo.gl/..." dir="ltr" class="input input-bordered w-full text-left pr-9 text-sm focus:input-primary" required />
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/40">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Drag & Drop Map Pin Selector -->
+                    <div class="form-control w-full">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="label-text font-bold text-xs">📍 حدد الموقع بدقة بسحب العلامة على الخريطة:</label>
+                            <button type="button" id="btn-locate-me" class="btn btn-ghost btn-xs text-primary gap-1">
+                                <i class="fa-solid fa-crosshairs"></i> موقعي الحالي
+                            </button>
+                        </div>
+                        <div id="map-picker" class="w-full h-64 rounded-xl border border-base-300 shadow-inner z-10"></div>
+                        <p class="text-[11px] text-base-content/60 mt-1">انقر على الخريطة أو اسحب العلامة لتثبيت إحداثيات الموقع بسهولة.</p>
+                    </div>
+
+                    <!-- Auto-filled Lat/Lng -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text text-[11px] font-semibold">خط العرض (Lat)</span></label>
+                            <input type="text" id="reg-lat" dir="ltr" readonly class="input input-bordered input-sm bg-base-200 text-xs text-center" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text text-[11px] font-semibold">خط الطول (Lng)</span></label>
+                            <input type="text" id="reg-lng" dir="ltr" readonly class="input input-bordered input-sm bg-base-200 text-xs text-center" />
+                        </div>
+                    </div>
+
+                    <!-- Description & Owner Contact -->
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-bold text-xs">تفاصيل إضافية / وصف العلامات القريبة</span></label>
+                        <textarea id="reg-desc" rows="2" placeholder="مثال: بالقرب من محطة الوقود، المدخل الخلفي..." class="textarea textarea-bordered text-sm"></textarea>
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-bold text-xs">اسم/بريد شخص للتواصل عند الاعتماد *</span></label>
+                        <input type="text" id="reg-owner-contact" placeholder="اسمك أو بريدك الإلكتروني لمتابعة الطلب" class="input input-bordered w-full text-sm" required />
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="btn-submit-reg" class="btn btn-primary btn-block text-white gap-2 font-bold text-base shadow-md">
+                        <i class="fa-solid fa-paper-plane"></i> إرسال طلب تسجيل المكتب
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal Dialog -->
+    <dialog id="success-modal-dialog" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box text-center">
+            <div class="text-5xl text-emerald-500 mb-3"><i class="fa-solid fa-circle-check"></i></div>
+            <h3 class="font-bold text-xl text-emerald-700 mb-2">تم إرسال الطلب بنجاح!</h3>
+            <p class="text-sm text-base-content/70 leading-relaxed mb-4">
+                شكراً لمساهمتك. تم حفظ طلب إدخال المكتب وسيقوم مشرفو النظام بمراجعته واعتماده ليظهر فوراً لسائقي التوصيل في العراق.
+            </p>
+            <div class="modal-action justify-center">
+                <button id="btn-modal-close" class="btn btn-emerald btn-primary text-white w-full">تم، حسناً 👍</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Leaflet.js JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Firebase JS SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
+            authDomain: "deliveryoffices.firebaseapp.com",
+            projectId: "deliveryoffices",
+            storageBucket: "deliveryoffices.firebasestorage.app",
+            messagingSenderId: "223751480716",
+            appId: "1:223751480716:web:9c705773d53f6e896322a9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const defaultLat = 33.3152;
+        const defaultLng = 44.3661;
+        
+        const map = L.map('map-picker').setView([defaultLat, defaultLng], 11);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+        function updateCoordsInputs(lat, lng) {
+            document.getElementById('reg-lat').value = lat.toFixed(5);
+            document.getElementById('reg-lng').value = lng.toFixed(5);
+        }
+
+        updateCoordsInputs(defaultLat, defaultLng);
+
+        marker.on('dragend', function (e) {
+            const coord = e.target.getLatLng();
+            updateCoordsInputs(coord.lat, coord.lng);
+        });
+
+        map.on('click', function (e) {
+            marker.setLatLng(e.latlng);
+            updateCoordsInputs(e.latlng.lat, e.latlng.lng);
+        });
+
+        document.getElementById('btn-locate-me').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    map.setView([lat, lng], 14);
+                    marker.setLatLng([lat, lng]);
+                    updateCoordsInputs(lat, lng);
+                });
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('reg-name').value.trim();
+            const governorate = document.getElementById('reg-governorate').value;
+            const district = document.getElementById('reg-district').value.trim();
+            const officeNumber = document.getElementById('reg-number').value.trim();
+            const showNumber = document.getElementById('reg-show-number').checked;
+            const phone = document.getElementById('reg-phone').value.trim();
+            const openTime = document.getElementById('reg-open-time').value;
+            const closeTime = document.getElementById('reg-close-time').value;
+            const mapUrl = document.getElementById('reg-map-url').value.trim();
+            const lat = document.getElementById('reg-lat').value.trim();
+            const lng = document.getElementById('reg-lng').value.trim();
+            const desc = document.getElementById('reg-desc').value.trim();
+            const ownerContact = document.getElementById('reg-owner-contact').value.trim();
+
+            const submitBtn = document.getElementById('btn-submit-reg');
+            submitBtn.disabled = true;
+
+            const pendingOfficeData = {
+                name,
+                governorate,
+                district,
+                officeNumber,
+                showNumber,
+                phone,
+                openTime,
+                closeTime,
+                mapUrl,
+                lat,
+                lng,
+                desc,
+                ownerContact,
+                status: "pending",
+                submittedAt: Date.now()
+            };
+
+            try {
+                await addDoc(collection(db, "pending_offices"), pendingOfficeData);
+                document.getElementById('success-modal-dialog').showModal();
+                document.getElementById('register-form').reset();
+            } catch (err) {
+                console.error("Submission error:", err);
+                alert("حدث خطأ أثناء إرسال البيانات. يرجى المحاولة مرة أخرى.");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('btn-modal-close').addEventListener('click', () => {
+            document.getElementById('success-modal-dialog').close();
+            window.location.href = "index.html";
+        });
+    </script>
+</body>
+</html>

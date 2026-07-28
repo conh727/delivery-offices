@@ -1,0 +1,19 @@
+{
+  "name": "مكاتب التوديع للسائقين - العراق",
+  "short_name": "مكاتب التوديع",
+  "description": "تطبيق مخصص لسائقي التوصيل في العراق لمساعدتهم على العثور على أقرب مكاتب التوديع ومعرفة أوقات العمل والتوجيه المباشر عبر الخرائط.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%232563eb'/><path d='M256 100c-77.3 0-140 62.7-140 140 0 105 140 252 140 252s140-147 140-252c0-77.3-62.7-140-140-140zm0 190c-27.6 0-50-22.4-50-50s22.4-50 50-50 50 22.4 50 50-22.4 50-50 50z' fill='%23ffffff'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="emerald">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مكاتب التوديع للسائقين في العراق | Delivery Offices</title>
+    <meta name="description" content="تطبيق سريع ومجاني لمساعدة سائقي التوصيل في العراق على العثور على أقرب مكاتب التوديع ومعرفة أوقات العمل والتوجيه المباشر عبر الخرائط.">
+    <meta name="theme-color" content="#10b981">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- DaisyUI & Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome 6 Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Google Fonts: Readex Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { font-family: 'Readex Pro', system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-base-200 min-h-screen text-base-content pb-10">
+
+    <div class="max-w-2xl mx-auto p-4">
+        
+        <!-- Header Hero / Navbar -->
+        <header class="navbar bg-gradient-to-r from-emerald-800 to-teal-600 text-primary-content rounded-2xl shadow-xl mb-4 p-4">
+            <div class="flex-1 flex flex-col items-start gap-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-truck-ramp-box text-2xl text-amber-300"></i>
+                    <h1 class="text-xl font-bold tracking-tight">مكاتب التوديع لسائقي التوصيل 🇮🇶</h1>
+                </div>
+                <p class="text-xs opacity-90">الدليل التفاعلي السريع لمكاتب التوديع في محافظات العراق</p>
+            </div>
+            <div class="flex-none">
+                <span id="pwa-status" class="badge badge-accent gap-1 font-semibold text-xs shadow">
+                    <i class="fa-solid fa-bolt"></i> مباشر
+                </span>
+            </div>
+        </header>
+
+        <!-- Status Banner -->
+        <div id="status-banner" class="alert alert-neutral shadow-md mb-4 flex justify-between items-center text-sm py-3">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-info"></i>
+                <span id="status-text">جاري جلب بيانات المكاتب...</span>
+            </div>
+            <span id="offline-tag" class="badge badge-warning hidden gap-1 text-xs">
+                <i class="fa-solid fa-wifi-slash"></i> تعمل بدون إنترنت
+            </span>
+        </div>
+
+        <!-- Controls Card: Search, Governorate Filter & GPS -->
+        <div class="card bg-base-100 shadow-md mb-6 border border-base-300">
+            <div class="card-body p-4 gap-3">
+                <!-- Search Box -->
+                <div class="relative w-full">
+                    <input type="text" id="search-input" placeholder="ابحث باسم المكتب، المحافظة، أو المنطقة..." class="input input-bordered w-full pr-10 bg-base-200 text-sm focus:input-primary" />
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-base-content/50">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                </div>
+
+                <!-- Filter Controls Row -->
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <select id="governorate-select" class="select select-bordered w-full sm:w-2/3 text-sm font-medium focus:select-primary">
+                        <option value="ALL">جميع المحافظات (العراق)</option>
+                        <option value="بغداد - الكرخ">بغداد - الكرخ</option>
+                        <option value="بغداد - الرصافة">بغداد - الرصافة</option>
+                        <option value="البصرة">البصرة</option>
+                        <option value="نينوى (الموصل)">نينوى (الموصل)</option>
+                        <option value="أربيل">أربيل</option>
+                        <option value="النجف الأشرف">النجف الأشرف</option>
+                        <option value="كربلاء المقدسة">كربلاء المقدسة</option>
+                        <option value="بابل (الحلة)">بابل (الحلة)</option>
+                        <option value="واسط (الكوت)">واسط (الكوت)</option>
+                        <option value="ديالي (بعقوبة)">ديالي (بعقوبة)</option>
+                        <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
+                        <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
+                        <option value="ميسان (العمارة)">ميسان (العمارة)</option>
+                        <option value="المثنى (السماوة)">المثنى (السماوة)</option>
+                        <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
+                        <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
+                        <option value="السليمانية">السليمانية</option>
+                        <option value="دهوك">دهوك</option>
+                        <option value="كركوك">كركوك</option>
+                    </select>
+
+                    <button id="btn-gps" class="btn btn-outline btn-primary w-full sm:w-1/3 gap-2 text-xs font-bold">
+                        <i class="fa-solid fa-location-crosshairs text-base"></i> الأقرب لي
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offices List -->
+        <main id="offices-list" class="space-y-4">
+            <!-- Dynamic Office Cards Rendered Here -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer footer-center p-6 bg-base-100 text-base-content rounded-2xl shadow-md border border-base-300 mt-8">
+            <div class="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
+                <a href="register.html" class="link link-primary flex items-center gap-1">
+                    <i class="fa-solid fa-pen-to-square"></i> إضافة أو تسجيل مكتب 📝
+                </a>
+                <span class="text-base-content/30">•</span>
+                <a href="admin.html" class="link link-secondary flex items-center gap-1">
+                    <i class="fa-solid fa-user-shield"></i> لوحة المشرفين 🔐
+                </a>
+            </div>
+            <p class="text-xs text-base-content/60">خدمة خيرية مجانية لسائقي التوصيل في كافة المحافظات العراقية 🇮🇶</p>
+        </footer>
+    </div>
+
+    <!-- Driver Report Modal -->
+    <dialog id="report-modal-dialog" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-error flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation"></i> إبلاغ عن مشكلة في المكتب
+            </h3>
+            <p id="report-office-name" class="py-2 text-sm font-semibold text-base-content/80"></p>
+            <input type="hidden" id="report-office-id" value="">
+
+            <div class="form-control w-full my-2">
+                <label class="label"><span class="label-text font-semibold text-xs">نوع المشكلة *</span></label>
+                <select id="report-type-select" class="select select-bordered w-full text-sm">
+                    <option value="المكتب مغلق دائمياً">المكتب مغلق دائمياً</option>
+                    <option value="الموقع غير دقيق في الخريطة">الموقع الجغرافي غير دقيق</option>
+                    <option value="أوقات العمل غير صحيحة">أوقات وساعات العمل غير صحيحة</option>
+                    <option value="رقم الهاتف لا يعمل">رقم الهاتف لا يعمل / خطأ</option>
+                    <option value="ملاحظة أخرى">ملاحظة أخرى</option>
+                </select>
+            </div>
+
+            <div class="form-control w-full my-2">
+                <label class="label"><span class="label-text font-semibold text-xs">تفاصيل إضافية (اختياري)</span></label>
+                <textarea id="report-notes" class="textarea textarea-bordered h-20 text-sm" placeholder="اكتب تفاصيل إضافية تساعد في معالجة البلاغ..."></textarea>
+            </div>
+
+            <div class="modal-action flex gap-2">
+                <button id="btn-submit-report" class="btn btn-error text-white flex-1 gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> إرسال التبليغ
+                </button>
+                <form method="dialog">
+                    <button class="btn btn-ghost">إلغاء</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Firebase JS SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW reg error:', err));
+            });
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
+            authDomain: "deliveryoffices.firebaseapp.com",
+            projectId: "deliveryoffices",
+            storageBucket: "deliveryoffices.firebasestorage.app",
+            messagingSenderId: "223751480716",
+            appId: "1:223751480716:web:9c705773d53f6e896322a9",
+            measurementId: "G-ESH9H4MLE2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        });
+
+        let allOffices = [];
+        let userLocation = null;
+
+        function updateOnlineStatus() {
+            const offlineTag = document.getElementById('offline-tag');
+            if (!navigator.onLine) {
+                offlineTag.classList.remove('hidden');
+            } else {
+                offlineTag.classList.add('hidden');
+            }
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        async function initApp() {
+            const statusEl = document.getElementById('status-text');
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "offices"));
+                allOffices = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    allOffices.push(data);
+                });
+
+                if (allOffices.length === 0) {
+                    statusEl.innerText = "لا توجد مكاتب مسجلة حالياً.";
+                    renderEmptyState();
+                    return;
+                }
+
+                statusEl.innerText = `عدد المكاتب المتاحة: (${allOffices.length})`;
+                applyFiltersAndRender();
+            } catch (e) {
+                console.error("خطأ في جلب البيانات:", e);
+                statusEl.innerText = "تعذر الاتصال بالسيرفر. يتم عرض البيانات المخزنة محلياً إذا توفرت.";
+            }
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return (R * c).toFixed(1);
+        }
+
+        function getWorkingStatus(openTimeStr, closeTimeStr) {
+            if (!openTimeStr || !closeTimeStr) return { isOpen: true, text: 'ساعات العمل غير محددة' };
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            const [openH, openM] = openTimeStr.split(':').map(Number);
+            const [closeH, closeM] = closeTimeStr.split(':').map(Number);
+
+            const openMinutes = openH * 60 + openM;
+            const closeMinutes = closeH * 60 + closeM;
+
+            let isOpen = false;
+            if (closeMinutes > openMinutes) {
+                isOpen = currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
+            } else {
+                isOpen = currentMinutes >= openMinutes || currentMinutes <= closeMinutes;
+            }
+
+            const formatTime = (timeStr) => {
+                const [h, m] = timeStr.split(':');
+                const hourNum = parseInt(h);
+                const ampm = hourNum >= 12 ? 'م' : 'ص';
+                const formattedHour = hourNum % 12 || 12;
+                return `${formattedHour}:${m} ${ampm}`;
+            };
+
+            const hoursRangeText = `${formatTime(openTimeStr)} - ${formatTime(closeTimeStr)}`;
+
+            if (isOpen) {
+                return { isOpen: true, text: `مفتوح الآن (${hoursRangeText})` };
+            } else {
+                return { isOpen: false, text: `مغلق الآن (${hoursRangeText})` };
+            }
+        }
+
+        function applyFiltersAndRender() {
+            const selectedGov = document.getElementById('governorate-select').value;
+            const searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+
+            let filtered = allOffices.filter(office => {
+                if (selectedGov !== 'ALL') {
+                    const govName = (office.governorate || '').toLowerCase();
+                    if (!govName.includes(selectedGov.toLowerCase())) return false;
+                }
+
+                if (searchQuery !== '') {
+                    const name = (office.name || '').toLowerCase();
+                    const desc = (office.desc || '').toLowerCase();
+                    const district = (office.district || '').toLowerCase();
+                    const gov = (office.governorate || '').toLowerCase();
+                    if (!name.includes(searchQuery) && !desc.includes(searchQuery) && 
+                        !district.includes(searchQuery) && !gov.includes(searchQuery)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            if (userLocation) {
+                filtered.forEach(off => {
+                    if (off.lat && off.lng) {
+                        off.distanceKm = calculateDistance(userLocation.lat, userLocation.lng, parseFloat(off.lat), parseFloat(off.lng));
+                    } else {
+                        off.distanceKm = null;
+                    }
+                });
+
+                filtered.sort((a, b) => {
+                    if (a.distanceKm === null) return 1;
+                    if (b.distanceKm === null) return -1;
+                    return parseFloat(a.distanceKm) - parseFloat(b.distanceKm);
+                });
+            }
+
+            renderOffices(filtered);
+        }
+
+        function renderOffices(list) {
+            const container = document.getElementById('offices-list');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                renderEmptyState();
+                return;
+            }
+
+            list.forEach(office => {
+                const card = document.createElement('div');
+                card.className = "card bg-base-100 shadow-md border border-base-300 hover:shadow-lg transition-shadow";
+
+                const workStatus = getWorkingStatus(office.openTime, office.closeTime);
+                const mapLink = office.mapUrl || office.url || office.link || office.map_link || '';
+                const safeMapLink = mapLink.trim();
+                const locationStr = [office.governorate, office.district].filter(Boolean).join(' • ');
+
+                card.innerHTML = `
+                    <div class="card-body p-4 sm:p-5 gap-3">
+                        <!-- Top Header -->
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-lg text-base-content">${escapeHtml(office.name || 'مكتب بدون اسم')}</h3>
+                                    ${office.showNumber && office.officeNumber ? `<span class="badge badge-neutral text-xs font-semibold">رقم ${escapeHtml(office.officeNumber)}</span>` : ''}
+                                </div>
+                                ${locationStr ? `<p class="text-xs text-base-content/70 flex items-center gap-1 mt-1"><i class="fa-solid fa-location-dot text-error"></i> ${escapeHtml(locationStr)}</p>` : ''}
+                            </div>
+                            
+                            <span class="badge ${workStatus.isOpen ? 'badge-success text-white' : 'badge-error text-white'} gap-1 text-xs font-bold py-3 px-3 shadow-sm">
+                                <i class="fa-solid ${workStatus.isOpen ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+                                ${escapeHtml(workStatus.text)}
+                            </span>
+                        </div>
+
+                        <!-- Description -->
+                        <p class="text-sm text-base-content/80 leading-relaxed bg-base-200/50 p-2.5 rounded-lg border border-base-200">${escapeHtml(office.desc || 'لا يوجد وصف خاص بهذا المكتب حالياً.')}</p>
+
+                        <!-- Meta Info Row -->
+                        <div class="flex justify-between items-center text-xs text-base-content/70 border-t border-base-200 pt-3">
+                            <div class="flex items-center gap-3">
+                                ${office.distanceKm ? `<span class="font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200"><i class="fa-solid fa-route"></i> المسافة: ${office.distanceKm} كم</span>` : ''}
+                                ${office.phone ? `<a href="tel:${escapeHtml(office.phone)}" class="link link-hover text-primary font-bold"><i class="fa-solid fa-phone"></i> ${escapeHtml(office.phone)}</a>` : ''}
+                            </div>
+                            <button class="btn btn-ghost btn-xs text-error gap-1 btn-report" data-id="${office.id}" data-name="${escapeHtml(office.name)}">
+                                <i class="fa-solid fa-flag"></i> إبلاغ
+                            </button>
+                        </div>
+
+                        <!-- Main Action Button -->
+                        <button class="btn btn-primary btn-block text-white gap-2 font-bold text-sm shadow-md mt-1 btn-navigate" data-link="${escapeHtml(safeMapLink)}">
+                            <i class="fa-solid fa-map-location-dot text-lg"></i> توجه إلى المكتب عبر Google Maps
+                        </button>
+                    </div>
+                `;
+
+                const navBtn = card.querySelector('.btn-navigate');
+                navBtn.addEventListener('click', () => {
+                    const targetUrl = navBtn.getAttribute('data-link');
+                    if (targetUrl && (targetUrl.startsWith('http://') || targetUrl.startsWith('https://'))) {
+                        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                    } else if (targetUrl) {
+                        window.open(`https://${targetUrl}`, '_blank', 'noopener,noreferrer');
+                    } else {
+                        alert("عذراً، لا يوجد رابط خريطة صالح مسجل لهذا المكتب.");
+                    }
+                });
+
+                const reportBtn = card.querySelector('.btn-report');
+                reportBtn.addEventListener('click', () => {
+                    openReportModal(reportBtn.getAttribute('data-id'), reportBtn.getAttribute('data-name'));
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function openReportModal(officeId, officeName) {
+            document.getElementById('report-office-id').value = officeId;
+            document.getElementById('report-office-name').textContent = `المكتب: ${officeName}`;
+            document.getElementById('report-notes').value = '';
+            document.getElementById('report-modal-dialog').showModal();
+        }
+
+        document.getElementById('btn-submit-report').addEventListener('click', async () => {
+            const officeId = document.getElementById('report-office-id').value;
+            const officeName = document.getElementById('report-office-name').textContent.replace('المكتب: ', '');
+            const reportType = document.getElementById('report-type-select').value;
+            const note = document.getElementById('report-notes').value.trim();
+
+            const submitBtn = document.getElementById('btn-submit-report');
+            submitBtn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "reports"), {
+                    officeId,
+                    officeName,
+                    reportType,
+                    note,
+                    timestamp: Date.now()
+                });
+
+                document.getElementById('report-modal-dialog').close();
+                alert("شكراً لك! تم إرسال البلاغ وسيقوم المشرفون بمراجعته فوراً. 🙏");
+            } catch (err) {
+                alert("حدث خطأ أثناء إرسال البلاغ.");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        function renderEmptyState() {
+            const container = document.getElementById('offices-list');
+            container.innerHTML = `
+                <div class="card bg-base-100 shadow border border-base-300 text-center p-8">
+                    <i class="fa-solid fa-magnifying-glass text-4xl text-base-content/30 mb-3"></i>
+                    <h3 class="font-bold text-base mb-1">لم يتم العثور على مكاتب</h3>
+                    <p class="text-xs text-base-content/60">جرب تغيير المحافظة أو نص البحث للحصول على نتائج.</p>
+                </div>
+            `;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        document.getElementById('governorate-select').addEventListener('change', applyFiltersAndRender);
+        document.getElementById('search-input').addEventListener('input', applyFiltersAndRender);
+
+        document.getElementById('btn-gps').addEventListener('click', () => {
+            const btnGps = document.getElementById('btn-gps');
+            if (!navigator.geolocation) {
+                alert("خاصية تحديد الموقع غير مدعومة في متصفحك.");
+                return;
+            }
+
+            btnGps.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري التحديد...`;
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    userLocation = {
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                    };
+                    btnGps.className = "btn btn-success text-white w-full sm:w-1/3 gap-2 text-xs font-bold";
+                    btnGps.innerHTML = `<i class="fa-solid fa-check"></i> تم التحديد`;
+                    applyFiltersAndRender();
+                },
+                (err) => {
+                    btnGps.innerHTML = `<i class="fa-solid fa-location-crosshairs text-base"></i> الأقرب لي`;
+                    alert("تعذر تحديد موقعك الحالي.");
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        });
+
+        window.addEventListener('load', initApp);
+    </script>
+</body>
+</html>

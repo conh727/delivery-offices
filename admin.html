@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="emerald">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة المكاتب والفروع | Iraq Delivery Offices</title>
+
+    <!-- DaisyUI & Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome 6 Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts: Readex Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { font-family: 'Readex Pro', system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-base-200 min-h-screen text-base-content pb-10">
+
+    <div class="max-w-3xl mx-auto p-4">
+        
+        <!-- Header -->
+        <header class="navbar bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-xl mb-4 p-4">
+            <div class="flex-1 flex flex-col items-start gap-1">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-2xl text-emerald-400"></i>
+                    <h1 class="text-xl font-bold tracking-tight">لوحة الإدارة والموافقات 🔐</h1>
+                </div>
+                <p class="text-xs opacity-80">إدارة المكاتب، طلبات التسجيل المعلقة، ومتابعة التبليغات</p>
+            </div>
+            <div class="flex-none">
+                <a href="index.html" class="btn btn-sm btn-ghost text-sky-300 gap-1">
+                    <i class="fa-solid fa-house"></i> الرئيسية ↗
+                </a>
+            </div>
+        </header>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="card bg-base-100 shadow-md border border-base-300 max-w-md mx-auto my-10">
+            <div class="card-body p-6 text-center">
+                <i class="fa-solid fa-lock text-4xl text-primary mb-2"></i>
+                <h2 class="font-bold text-xl mb-1">تسجيل دخول المشرفين والمساهمين</h2>
+                <p class="text-xs text-base-content/60 mb-4">يرجى إدخال حسابك المعتمد للوصول للوحة التحكم</p>
+
+                <div class="form-control w-full my-2 text-right">
+                    <label class="label"><span class="label-text font-bold text-xs">البريد الإلكتروني / الحساب</span></label>
+                    <input type="text" id="login-email" placeholder="admin@delivery.iq" class="input input-bordered w-full text-sm" />
+                </div>
+
+                <div class="form-control w-full my-2 text-right">
+                    <label class="label"><span class="label-text font-bold text-xs">كلمة المرور</span></label>
+                    <input type="password" id="login-password" placeholder="••••••••" class="input input-bordered w-full text-sm" />
+                </div>
+
+                <button id="btn-login" class="btn btn-primary btn-block text-white mt-4 font-bold gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Panel (Hidden until login) -->
+        <div id="admin-panel" class="hidden space-y-4">
+            
+            <!-- User Status & Logout Banner -->
+            <div class="alert bg-base-100 shadow border border-base-300 flex justify-between items-center py-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-user text-emerald-600 text-lg"></i>
+                    <span id="user-display-email" class="font-bold text-sm">مرحباً بك في لوحة الإدارة</span>
+                </div>
+                <button id="btn-logout" class="btn btn-error btn-xs btn-outline gap-1 font-bold">
+                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                </button>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="tabs tabs-boxed bg-base-100 p-1 shadow border border-base-300 overflow-x-auto flex-nowrap">
+                <button class="tab tab-active font-bold text-xs gap-1" data-tab="tab-offices">
+                    <i class="fa-solid fa-store"></i> المكاتب الفعالة
+                </button>
+                <button class="tab font-bold text-xs gap-1" data-tab="tab-pending">
+                    <i class="fa-solid fa-hourglass-half"></i> الموافقات المعلقة (<span id="pending-count">0</span>)
+                </button>
+                <button class="tab font-bold text-xs gap-1" data-tab="tab-reports">
+                    <i class="fa-solid fa-triangle-exclamation"></i> التبليغات (<span id="reports-count">0</span>)
+                </button>
+                <button class="tab font-bold text-xs gap-1" data-tab="tab-link-gen">
+                    <i class="fa-solid fa-link"></i> مولد الروابط
+                </button>
+                <button class="tab font-bold text-xs gap-1" data-tab="tab-audit">
+                    <i class="fa-solid fa-list-check"></i> سجل Audit Log
+                </button>
+            </div>
+
+            <!-- TAB 1: ACTIVE OFFICES -->
+            <div id="tab-offices" class="tab-pane space-y-4">
+                
+                <!-- Add / Edit Form Card -->
+                <div class="card bg-base-100 shadow border border-base-300">
+                    <div class="card-body p-5 gap-3">
+                        <h3 id="form-title" class="font-bold text-base text-primary flex items-center gap-2">
+                            <i class="fa-solid fa-square-plus"></i> إضافة مكتب توديع جديد
+                        </h3>
+                        <input type="hidden" id="edit-doc-id" value="">
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">اسم المكتب الرئيسي *</span></label>
+                            <input type="text" id="office-name" class="input input-bordered w-full text-sm" placeholder="اسم المكتب" />
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">المحافظة *</span></label>
+                                <select id="office-governorate" class="select select-bordered w-full text-sm">
+                                    <option value="بغداد - الكرخ">بغداد - الكرخ</option>
+                                    <option value="بغداد - الرصافة">بغداد - الرصافة</option>
+                                    <option value="البصرة">البصرة</option>
+                                    <option value="نينوى (الموصل)">نينوى (الموصل)</option>
+                                    <option value="أربيل">أربيل</option>
+                                    <option value="النجف الأشرف">النجف الأشرف</option>
+                                    <option value="كربلاء المقدسة">كربلاء المقدسة</option>
+                                    <option value="بابل (الحلة)">بابل (الحلة)</option>
+                                    <option value="واسط (الكوت)">واسط (الكوت)</option>
+                                    <option value="ديالي (بعقوبة)">ديالي (بعقوبة)</option>
+                                    <option value="ذي قار (الناصرية)">ذي قار (الناصرية)</option>
+                                    <option value="القادسية (الديوانية)">القادسية (الديوانية)</option>
+                                    <option value="ميسان (العمارة)">ميسان (العمارة)</option>
+                                    <option value="المثنى (السماوة)">المثنى (السماوة)</option>
+                                    <option value="الأنبار (الرمادي)">الأنبار (الرمادي)</option>
+                                    <option value="صلاح الدين (تكريت)">صلاح الدين (تكريت)</option>
+                                    <option value="السليمانية">السليمانية</option>
+                                    <option value="دهوك">دهوك</option>
+                                    <option value="كركوك">كركوك</option>
+                                </select>
+                            </div>
+
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">المنطقة / الفرع</span></label>
+                                <input type="text" id="office-district" class="input input-bordered w-full text-sm" placeholder="المنطقة" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">رقم المكتب</span></label>
+                                <input type="text" id="office-number" class="input input-bordered w-full text-sm" placeholder="رقم" />
+                            </div>
+                            <div class="form-control">
+                                <label class="label cursor-pointer justify-start gap-3 border border-base-300 rounded-lg p-2.5 bg-base-200/40">
+                                    <input type="checkbox" id="show-number-check" class="checkbox checkbox-primary checkbox-sm" />
+                                    <span class="label-text font-semibold text-xs">إظهار الرقم للسائقين</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">وقت الفتح</span></label>
+                                <input type="time" id="office-open-time" value="08:00" class="input input-bordered w-full text-sm" />
+                            </div>
+                            <div class="form-control w-full">
+                                <label class="label"><span class="label-text font-bold text-xs">وقت الإغلاق</span></label>
+                                <input type="time" id="office-close-time" value="22:00" class="input input-bordered w-full text-sm" />
+                            </div>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">رقم الهاتف</span></label>
+                            <input type="tel" id="office-phone" class="input input-bordered w-full text-sm" placeholder="رقم الهاتف" />
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">رابط خرائط جوجل (Google Maps Link) *</span></label>
+                            <input type="url" id="office-map-link" dir="ltr" class="input input-bordered w-full text-left text-sm" placeholder="https://maps.app.goo.gl/..." />
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-[11px] font-semibold">خط العرض (Lat)</span></label>
+                                <input type="text" id="office-lat" dir="ltr" class="input input-bordered input-sm bg-base-200 text-xs text-center" placeholder="33.3152" />
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-[11px] font-semibold">خط الطول (Lng)</span></label>
+                                <input type="text" id="office-lng" dir="ltr" class="input input-bordered input-sm bg-base-200 text-xs text-center" placeholder="44.3661" />
+                            </div>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-bold text-xs">الوصف والملاحظات</span></label>
+                            <textarea id="office-desc" rows="2" class="textarea textarea-bordered text-sm" placeholder="الوصف..."></textarea>
+                        </div>
+
+                        <div class="flex gap-2 mt-2">
+                            <button id="btn-save" class="btn btn-emerald btn-primary text-white flex-1 font-bold gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> حفظ المكتب
+                            </button>
+                            <button id="btn-cancel-edit" class="btn btn-ghost hidden">إلغاء التعديل</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Offices List -->
+                <h3 class="font-bold text-sm text-base-content/80">قائمة المكاتب الفعالة:</h3>
+                <div id="admin-offices-list" class="space-y-3">
+                    <p class="text-xs text-base-content/60">جاري التحميل...</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: PENDING APPROVALS -->
+            <div id="tab-pending" class="tab-pane hidden space-y-4">
+                <div class="alert alert-warning text-xs py-3 shadow-sm">
+                    <i class="fa-solid fa-clock-history"></i>
+                    <span><strong>طلبات الإضافة المعلقة:</strong> الطلبات القادمة عبر رابط التسجيل الخارجي تتطلب إقرار المشرف قبل تفعيلها.</span>
+                </div>
+                <div id="pending-offices-list" class="space-y-3">
+                    <p class="text-xs text-base-content/60">جاري جلب الطلبات المعلقة...</p>
+                </div>
+            </div>
+
+            <!-- TAB 3: DRIVER REPORTS -->
+            <div id="tab-reports" class="tab-pane hidden space-y-4">
+                <div class="alert alert-error text-xs py-3 shadow-sm text-white">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span><strong>تبليغات السائقين:</strong> البلاغات والشكاوى الواردة مباشرة من السائقين حول المكاتب.</span>
+                </div>
+                <div id="reports-list" class="space-y-3">
+                    <p class="text-xs text-base-content/60">جاري تحميل البلاغات...</p>
+                </div>
+            </div>
+
+            <!-- TAB 4: LINK GENERATOR -->
+            <div id="tab-link-gen" class="tab-pane hidden">
+                <div class="card bg-base-100 shadow border border-base-300">
+                    <div class="card-body p-6 gap-3">
+                        <h3 class="font-bold text-base text-primary flex items-center gap-2">
+                            <i class="fa-solid fa-link"></i> رابط التسجيل الخارجي للمكاتب
+                        </h3>
+                        <p class="text-xs text-base-content/70">انسخ هذا الرابط وأرسله لأصحاب المكاتب أو الفروع لإدخال بياناتهم وتثبيت إحداثيات موقعهم على الخريطة بأنفسهم:</p>
+
+                        <div class="flex gap-2 my-2">
+                            <input type="text" id="generated-link-input" dir="ltr" readonly class="input input-bordered w-full text-xs font-bold text-primary bg-base-200" />
+                            <button id="btn-copy-link" class="btn btn-primary text-white text-xs font-bold gap-1 whitespace-nowrap">
+                                <i class="fa-solid fa-copy"></i> نسخ الرابط
+                            </button>
+                        </div>
+
+                        <a id="btn-share-whatsapp" href="#" target="_blank" class="btn btn-success text-white font-bold gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> مشاركة عبر واتساب
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: AUDIT LOG -->
+            <div id="tab-audit" class="tab-pane hidden">
+                <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات والتعديلات (Audit Log):</h3>
+                <div id="audit-logs-list" class="space-y-2">
+                    <p class="text-xs text-base-content/60">جاري تحميل سجل العمليات...</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Map Pin Picker Modal Dialog -->
+    <dialog id="map-modal-dialog" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 class="font-bold text-base mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-map-pin text-primary"></i> تثبيت الموقع الجغرافي دقيقاً على الخريطة
+            </h3>
+            <p class="text-xs text-base-content/60 mb-3">اسحب العلامة (Pin) لتعديل موقع المكتب بالضبط:</p>
+            
+            <div id="admin-map-picker" class="w-full h-64 rounded-xl border border-base-300 mb-4 shadow-inner"></div>
+            
+            <div class="modal-action flex gap-2">
+                <button id="btn-save-map-coords" class="btn btn-primary text-white flex-1 gap-2 font-bold">
+                    <i class="fa-solid fa-check"></i> تأكيد وحفظ الإحداثيات
+                </button>
+                <form method="dialog">
+                    <button class="btn btn-ghost">إلغاء</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Leaflet.js JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Firebase JS SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
+            authDomain: "deliveryoffices.firebaseapp.com",
+            projectId: "deliveryoffices",
+            storageBucket: "deliveryoffices.firebasestorage.app",
+            messagingSenderId: "223751480716",
+            appId: "1:223751480716:web:9c705773d53f6e896322a9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const FALLBACK_PIN = "12345";
+        let isLocalPinAuth = false;
+        let currentUserEmail = "أدمن النظام";
+
+        let activeOfficesCache = [];
+        let pendingOfficesCache = [];
+        let reportsCache = [];
+
+        // Tab Switching Logic
+        const tabBtns = document.querySelectorAll('.tab');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('tab-active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+
+                btn.classList.add('tab-active');
+                const targetTab = btn.getAttribute('data-tab');
+                document.getElementById(targetTab).classList.remove('hidden');
+
+                if (targetTab === 'tab-pending') loadPendingOffices();
+                if (targetTab === 'tab-reports') loadReports();
+                if (targetTab === 'tab-audit') loadAuditLogs();
+            });
+        });
+
+        const currentOrigin = window.location.origin + window.location.pathname.replace('admin.html', '');
+        const registerFullUrl = currentOrigin + 'register.html';
+        document.getElementById('generated-link-input').value = registerFullUrl;
+
+        document.getElementById('btn-copy-link').addEventListener('click', () => {
+            navigator.clipboard.writeText(registerFullUrl);
+            alert("تم نسخ رابط التسجيل الخارجي للحافظة! 📋");
+        });
+
+        document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل وتحديث بيانات مكاتب التوديع للسائقين في العراق: ' + registerFullUrl)}`;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user || isLocalPinAuth) {
+                currentUserEmail = user ? user.email : "أدمن النظام";
+                document.getElementById('user-display-email').textContent = `مرحباً بك: ${currentUserEmail}`;
+                showAdminPanel();
+            } else {
+                showLoginScreen();
+            }
+        });
+
+        function showAdminPanel() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            loadAdminOffices();
+            loadPendingOffices();
+            loadReports();
+        }
+
+        function showLoginScreen() {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-panel').classList.add('hidden');
+        }
+
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const emailInput = document.getElementById('login-email').value.trim();
+            const passwordInput = document.getElementById('login-password').value.trim();
+
+            if (!emailInput || !passwordInput) return alert("يرجى إدخال البيانات!");
+
+            if (passwordInput === FALLBACK_PIN || emailInput === FALLBACK_PIN) {
+                isLocalPinAuth = true;
+                showAdminPanel();
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, emailInput, passwordInput);
+            } catch (err) {
+                alert("رمز المرور أو الحساب غير صحيح!");
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            isLocalPinAuth = false;
+            try { await signOut(auth); } catch (e) {}
+            showLoginScreen();
+        });
+
+        async function logAudit(actionType, officeName) {
+            try {
+                await addDoc(collection(db, "audit_logs"), {
+                    actionType,
+                    officeName,
+                    userEmail: currentUserEmail,
+                    timestamp: Date.now()
+                });
+            } catch (e) {}
+        }
+
+        // --- TAB 1: ACTIVE OFFICES ---
+        async function loadAdminOffices() {
+            const container = document.getElementById('admin-offices-list');
+            container.innerHTML = '<p class="text-xs text-base-content/60">جاري التحميل...</p>';
+
+            try {
+                const snapshot = await getDocs(collection(db, "offices"));
+                container.innerHTML = '';
+                activeOfficesCache = [];
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة.</p>';
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    data.id = docSnap.id;
+                    activeOfficesCache.push(data);
+                    container.appendChild(createActiveOfficeRow(data));
+                });
+            } catch (e) {
+                container.innerHTML = '<p class="text-xs text-error">فشل التحميل.</p>';
+            }
+        }
+
+        function createActiveOfficeRow(office) {
+            const row = document.createElement('div');
+            row.className = "card bg-base-100 shadow-sm border border-base-300";
+
+            row.innerHTML = `
+                <div class="card-body p-3 flex-row justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-sm text-base-content">${escapeHtml(office.name)}</h4>
+                        <p class="text-xs text-base-content/70 mt-0.5">
+                            📍 ${escapeHtml(office.governorate || '')} ${office.district ? '- ' + escapeHtml(office.district) : ''} | ⏰ ${escapeHtml(office.openTime || '08:00')} - ${escapeHtml(office.closeTime || '22:00')}
+                        </p>
+                    </div>
+
+                    <!-- DaisyUI Dropdown Menu -->
+                    <div class="dropdown dropdown-left">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm">
+                            <i class="fa-solid fa-ellipsis-vertical text-base"></i>
+                        </div>
+                        <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[20] w-48 p-2 shadow-lg border border-base-300 text-xs">
+                            <li><a class="btn-edit-act gap-2"><i class="fa-solid fa-pen-to-square text-primary"></i> تعديل البيانات</a></li>
+                            <li><a class="btn-map-act gap-2"><i class="fa-solid fa-map-pin text-emerald-600"></i> تثبيت بالخريطة</a></li>
+                            <li><a class="btn-del-act text-error gap-2"><i class="fa-solid fa-trash"></i> حذف المكتب</a></li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            row.querySelector('.btn-edit-act').onclick = () => prepareEditForm(office.id);
+            row.querySelector('.btn-map-act').onclick = () => openMapModalForOffice(office);
+            row.querySelector('.btn-del-act').onclick = async () => {
+                if (confirm(`هل أنت متأكد من حذف مكتب "${office.name}"؟`)) {
+                    await deleteDoc(doc(db, "offices", office.id));
+                    await logAudit("حذف مكتب", office.name);
+                    loadAdminOffices();
+                }
+            };
+
+            return row;
+        }
+
+        // --- TAB 2: PENDING APPROVALS ---
+        async function loadPendingOffices() {
+            const container = document.getElementById('pending-offices-list');
+            const badgeCount = document.getElementById('pending-count');
+
+            try {
+                const snapshot = await getDocs(collection(db, "pending_offices"));
+                container.innerHTML = '';
+                pendingOfficesCache = [];
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.status === 'pending') {
+                        data.id = docSnap.id;
+                        pendingOfficesCache.push(data);
+                    }
+                });
+
+                badgeCount.textContent = pendingOfficesCache.length;
+
+                if (pendingOfficesCache.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد طلبات معلقة بانتظار الموافقة. ✨</p>';
+                    return;
+                }
+
+                pendingOfficesCache.forEach(pend => {
+                    const card = document.createElement('div');
+                    card.className = 'card bg-base-100 shadow-sm border border-base-300';
+                    card.innerHTML = `
+                        <div class="card-body p-4 gap-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-base text-base-content">${escapeHtml(pend.name)}</h4>
+                                    <p class="text-xs text-base-content/70">📍 ${escapeHtml(pend.governorate)} - ${escapeHtml(pend.district || '')}</p>
+                                </div>
+                                <span class="badge badge-warning text-xs font-bold gap-1"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
+                            </div>
+
+                            <p class="text-xs text-base-content/80 bg-base-200/50 p-2 rounded">${escapeHtml(pend.desc || 'بدون وصف إضافي')}</p>
+
+                            <div class="text-xs text-base-content/60 flex flex-wrap gap-3">
+                                <span>👤 المقدم: <strong>${escapeHtml(pend.ownerContact || 'غير معروف')}</strong></span>
+                                <span>📞 الهاتف: <strong>${escapeHtml(pend.phone || 'غير مسجل')}</strong></span>
+                            </div>
+
+                            <div class="flex gap-2 mt-2">
+                                <button class="btn btn-success btn-xs text-white flex-1 gap-1 btn-approve font-bold">
+                                    <i class="fa-solid fa-circle-check"></i> موافقة واعتماد
+                                </button>
+                                <button class="btn btn-error btn-outline btn-xs gap-1 btn-reject font-bold">
+                                    <i class="fa-solid fa-circle-xmark"></i> رفض
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    card.querySelector('.btn-approve').onclick = async () => {
+                        if (confirm(`هل تريد موافقة واعتماد مكتب "${pend.name}"؟`)) {
+                            const approvedData = { ...pend, updatedAt: Date.now() };
+                            delete approvedData.id;
+                            delete approvedData.status;
+
+                            await addDoc(collection(db, "offices"), approvedData);
+                            await deleteDoc(doc(db, "pending_offices", pend.id));
+                            await logAudit("موافقة واعتماد مكتب جديد", pend.name);
+
+                            loadPendingOffices();
+                            loadAdminOffices();
+                            alert("تمت الموافقة بنجاح! 🎉");
+                        }
+                    };
+
+                    card.querySelector('.btn-reject').onclick = async () => {
+                        if (confirm(`هل تريد رفض طلب مكتب "${pend.name}"؟`)) {
+                            await deleteDoc(doc(db, "pending_offices", pend.id));
+                            await logAudit("رفض طلب مكتب", pend.name);
+                            loadPendingOffices();
+                        }
+                    };
+
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                container.innerHTML = '<p class="text-xs text-error">فشل جلب الطلبات.</p>';
+            }
+        }
+
+        // --- TAB 3: DRIVER REPORTS ---
+        async function loadReports() {
+            const container = document.getElementById('reports-list');
+            const badgeCount = document.getElementById('reports-count');
+
+            try {
+                const snapshot = await getDocs(collection(db, "reports"));
+                container.innerHTML = '';
+                reportsCache = [];
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    data.id = docSnap.id;
+                    reportsCache.push(data);
+                });
+
+                badgeCount.textContent = reportsCache.length;
+
+                if (reportsCache.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد بلاغات حالياً. 👍</p>';
+                    return;
+                }
+
+                reportsCache.forEach(rep => {
+                    const card = document.createElement('div');
+                    card.className = 'card bg-base-100 shadow-sm border border-base-300';
+
+                    const dateStr = new Date(rep.timestamp || Date.now()).toLocaleDateString('ar-IQ');
+
+                    card.innerHTML = `
+                        <div class="card-body p-4 gap-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <strong class="text-error font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> بلاغ: ${escapeHtml(rep.reportType)}</strong>
+                                <span class="text-base-content/50">${dateStr}</span>
+                            </div>
+                            <p class="text-xs font-bold text-base-content">المكتب: ${escapeHtml(rep.officeName)}</p>
+                            ${rep.note ? `<p class="text-xs text-base-content/80 bg-base-200/60 p-2 rounded">${escapeHtml(rep.note)}</p>` : ''}
+                            
+                            <button class="btn btn-success btn-xs text-white btn-resolve-rep mt-1 gap-1">
+                                <i class="fa-solid fa-check"></i> تم المعالجة وحذف البلاغ
+                            </button>
+                        </div>
+                    `;
+
+                    card.querySelector('.btn-resolve-rep').onclick = async () => {
+                        await deleteDoc(doc(db, "reports", rep.id));
+                        loadReports();
+                    };
+
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                container.innerHTML = '<p class="text-xs text-error">فشل تحميل البلاغات.</p>';
+            }
+        }
+
+        // --- TAB 5: AUDIT LOG ---
+        async function loadAuditLogs() {
+            const container = document.getElementById('audit-logs-list');
+            try {
+                const snapshot = await getDocs(collection(db, "audit_logs"));
+                container.innerHTML = '';
+
+                let logs = [];
+                snapshot.forEach(docSnap => logs.push(docSnap.data()));
+                logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                if (logs.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لا يوجد سجل عمليات بعد.</p>';
+                    return;
+                }
+
+                logs.forEach(l => {
+                    const timeStr = new Date(l.timestamp || Date.now()).toLocaleString('ar-IQ');
+                    const item = document.createElement('div');
+                    item.className = 'bg-base-100 p-3 rounded-lg border-r-4 border-r-primary shadow-sm text-xs space-y-1';
+                    item.innerHTML = `
+                        <div class="font-bold text-base-content">${escapeHtml(l.actionType)}: <strong class="text-primary">${escapeHtml(l.officeName)}</strong></div>
+                        <div class="text-base-content/60 text-[11px]">بواسطة: ${escapeHtml(l.userEmail || 'المشرف')} | ⏱️ ${timeStr}</div>
+                    `;
+                    container.appendChild(item);
+                });
+            } catch (e) {
+                container.innerHTML = '<p class="text-xs text-error">فشل تحميل السجل.</p>';
+            }
+        }
+
+        // --- MAP PIN PICKER MODAL ---
+        let mapModalInstance = null;
+        let mapModalMarker = null;
+        let activeMapOfficeId = null;
+
+        function openMapModalForOffice(office) {
+            activeMapOfficeId = office.id;
+            const dialog = document.getElementById('map-modal-dialog');
+            dialog.showModal();
+
+            const lat = parseFloat(office.lat) || 33.3152;
+            const lng = parseFloat(office.lng) || 44.3661;
+
+            setTimeout(() => {
+                if (!mapModalInstance) {
+                    mapModalInstance = L.map('admin-map-picker').setView([lat, lng], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapModalInstance);
+                    mapModalMarker = L.marker([lat, lng], { draggable: true }).addTo(mapModalInstance);
+                } else {
+                    mapModalInstance.setView([lat, lng], 13);
+                    mapModalMarker.setLatLng([lat, lng]);
+                    mapModalInstance.invalidateSize();
+                }
+            }, 200);
+        }
+
+        document.getElementById('btn-save-map-coords').addEventListener('click', async () => {
+            if (!activeMapOfficeId || !mapModalMarker) return;
+            const pos = mapModalMarker.getLatLng();
+            
+            try {
+                await updateDoc(doc(db, "offices", activeMapOfficeId), {
+                    lat: pos.lat.toFixed(5),
+                    lng: pos.lng.toFixed(5)
+                });
+                const officeObj = activeOfficesCache.find(o => o.id === activeMapOfficeId);
+                await logAudit("تحديث الموقع الجغرافي بالخريطة", officeObj ? officeObj.name : 'مكتب');
+                document.getElementById('map-modal-dialog').close();
+                loadAdminOffices();
+                alert("تم تحديث إحداثيات الموقع بنجاح! 📍");
+            } catch (e) {
+                alert("حدث خطأ أثناء الحفظ!");
+            }
+        });
+
+        function prepareEditForm(id) {
+            const office = activeOfficesCache.find(o => o.id === id);
+            if (!office) return;
+
+            document.getElementById('edit-doc-id').value = office.id;
+            document.getElementById('office-name').value = office.name || '';
+            document.getElementById('office-governorate').value = office.governorate || 'بغداد - الكرخ';
+            document.getElementById('office-district').value = office.district || '';
+            document.getElementById('office-number').value = office.officeNumber || '';
+            document.getElementById('show-number-check').checked = office.showNumber || false;
+            document.getElementById('office-open-time').value = office.openTime || '08:00';
+            document.getElementById('office-close-time').value = office.closeTime || '22:00';
+            document.getElementById('office-phone').value = office.phone || '';
+            document.getElementById('office-map-link').value = office.mapUrl || office.url || office.link || '';
+            document.getElementById('office-lat').value = office.lat || '';
+            document.getElementById('office-lng').value = office.lng || '';
+            document.getElementById('office-desc').value = office.desc || '';
+
+            document.getElementById('form-title').innerText = "تعديل بيانات المكتب ✏️";
+            document.getElementById('btn-save').innerText = "حفظ التعديلات 💾";
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('edit-doc-id').value = '';
+            document.getElementById('office-name').value = '';
+            document.getElementById('office-district').value = '';
+            document.getElementById('office-number').value = '';
+            document.getElementById('show-number-check').checked = false;
+            document.getElementById('office-open-time').value = '08:00';
+            document.getElementById('office-close-time').value = '22:00';
+            document.getElementById('office-phone').value = '';
+            document.getElementById('office-map-link').value = '';
+            document.getElementById('office-lat').value = '';
+            document.getElementById('office-lng').value = '';
+            document.getElementById('office-desc').value = '';
+
+            document.getElementById('form-title').innerText = "إضافة مكتب توديع جديد ➕";
+            document.getElementById('btn-save').innerText = "حفظ المكتب 💾";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+        }
+
+        document.getElementById('btn-cancel-edit').addEventListener('click', resetForm);
+
+        document.getElementById('btn-save').addEventListener('click', async () => {
+            const name = document.getElementById('office-name').value.trim();
+            const governorate = document.getElementById('office-governorate').value;
+            const district = document.getElementById('office-district').value.trim();
+            const officeNumber = document.getElementById('office-number').value.trim();
+            const showNumber = document.getElementById('show-number-check').checked;
+            const openTime = document.getElementById('office-open-time').value;
+            const closeTime = document.getElementById('office-close-time').value;
+            const phone = document.getElementById('office-phone').value.trim();
+            const mapUrl = document.getElementById('office-map-link').value.trim();
+            const lat = document.getElementById('office-lat').value.trim();
+            const lng = document.getElementById('office-lng').value.trim();
+            const desc = document.getElementById('office-desc').value.trim();
+            const editId = document.getElementById('edit-doc-id').value;
+
+            if (!name || !mapUrl) return alert("يرجى أدخال اسم المكتب والرابط!");
+
+            if (!confirm("هل أنت متأكد من حفظ بيانات هذا المكتب؟")) return;
+
+            const officeData = {
+                name,
+                governorate,
+                district,
+                officeNumber,
+                showNumber,
+                openTime,
+                closeTime,
+                phone,
+                mapUrl,
+                lat,
+                lng,
+                desc,
+                updatedAt: Date.now()
+            };
+
+            try {
+                if (editId) {
+                    await updateDoc(doc(db, "offices", editId), officeData);
+                    await logAudit("تعديل مكتب", name);
+                } else {
+                    officeData.createdAt = Date.now();
+                    await addDoc(collection(db, "offices"), officeData);
+                    await logAudit("إضافة مكتب جديد", name);
+                }
+                resetForm();
+                loadAdminOffices();
+                alert("تم الحفظ بنجاح! ✅");
+            } catch (e) {
+                alert("حدث خطأ أثناء حفظ البيانات!");
+            }
+        });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+    </script>
+</body>
+</html>
