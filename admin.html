@@ -29,14 +29,18 @@
     <!-- Login Screen -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="card bg-base-100 shadow-2xl border border-base-300 w-full max-w-md">
-            <div class="card-body p-8 text-center gap-4">
+            <div class="card-body p-6 text-center gap-3">
                 <div class="inline-block p-4 rounded-full bg-emerald-100 text-emerald-700 mx-auto">
                     <i class="fa-solid fa-user-shield text-4xl"></i>
                 </div>
                 <h2 class="font-bold text-2xl text-base-content">نظام إدارة مكاتب التوديع</h2>
                 <p class="text-xs text-base-content/60">لوحة المشرفين والمساهمين المعتمدين في العراق</p>
 
-                <div class="divider text-xs text-base-content/40">تسجيل الدخول آمن</div>
+                <!-- Alert Message -->
+                <div id="access-denied-alert" class="alert alert-error text-xs hidden my-1">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="access-alert-msg">عذراً، هذا الحساب غير مصرح له بالدخول كـ مشرف!</span>
+                </div>
 
                 <!-- Google Sign In Button -->
                 <button id="btn-google-login" class="btn btn-outline btn-neutral btn-block gap-3 font-bold py-3 shadow">
@@ -44,22 +48,21 @@
                     تسجيل الدخول عبر حساب Google
                 </button>
 
-                <!-- Fallback Email/Pass Section -->
-                <div class="collapse collapse-arrow border border-base-300 bg-base-200/50 mt-2">
-                    <input type="checkbox" /> 
-                    <div class="collapse-title text-xs font-semibold text-base-content/70">
-                        أو عبر البريد والمفتاح السريع
-                    </div>
-                    <div class="collapse-content space-y-2 text-right">
-                        <input type="text" id="login-email" placeholder="admin@delivery.iq" class="input input-bordered input-sm w-full text-xs" />
-                        <input type="password" id="login-password" placeholder="••••••••" class="input input-bordered input-sm w-full text-xs" />
-                        <button id="btn-login-fallback" class="btn btn-primary btn-sm btn-block text-white text-xs">دخول</button>
-                    </div>
-                </div>
+                <div class="divider text-xs text-base-content/40 my-1">أو عبر رمز المرور المباشر</div>
 
-                <div id="access-denied-alert" class="alert alert-error text-xs hidden">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span>عذراً، هذا الحساب غير مصرح له بالدخول كـ مشرف!</span>
+                <!-- Fixed Solid Email/PIN Form -->
+                <div class="bg-base-200/70 p-4 rounded-xl border border-base-300 space-y-3 text-right">
+                    <div class="form-control">
+                        <label class="label py-1"><span class="label-text font-bold text-xs">البريد الإلكتروني (اختياري)</span></label>
+                        <input type="text" id="login-email" placeholder="admin@delivery.iq" class="input input-bordered input-sm w-full text-xs" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label py-1"><span class="label-text font-bold text-xs">رمز المرور السريع *</span></label>
+                        <input type="password" id="login-password" placeholder="أدخل 12345" class="input input-bordered input-sm w-full text-xs" />
+                    </div>
+                    <button id="btn-login-fallback" class="btn btn-primary btn-sm btn-block text-white text-xs font-bold">
+                        تسجيل الدخول بالمفتاح 🔑
+                    </button>
                 </div>
             </div>
         </div>
@@ -382,7 +385,7 @@
         let activeOfficesCache = [];
         let pendingOfficesCache = [];
         let reportsCache = [];
-        let whitelistedAdmins = ["conh727@gmail.com"];
+        let whitelistedAdmins = [];
 
         // Sidebar Navigation Tabs Switch
         const sidebarBtns = document.querySelectorAll('.sidebar-btn');
@@ -398,7 +401,6 @@
                 document.getElementById(targetPane).classList.remove('hidden');
                 document.getElementById('section-header-title').textContent = paneTitle;
 
-                // Close Mobile Drawer
                 const drawerToggle = document.getElementById('dashboard-drawer');
                 if (drawerToggle) drawerToggle.checked = false;
 
@@ -409,7 +411,7 @@
             });
         });
 
-        // Initialize Registration Link Generator URL
+        // Initialize Link Generator URL
         const currentOrigin = window.location.origin + window.location.pathname.replace('admin.html', '');
         const registerFullUrl = currentOrigin + 'register.html';
         document.getElementById('generated-link-input').value = registerFullUrl;
@@ -421,36 +423,41 @@
 
         document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل وتحديث بيانات مكاتب التوديع للسائقين في العراق: ' + registerFullUrl)}`;
 
-        // Load Whitelisted Admins List from Firestore
+        // Fetch Whitelist
         async function fetchAdminWhitelist() {
             try {
+                whitelistedAdmins = [];
                 const snapshot = await getDocs(collection(db, "whitelisted_admins"));
                 snapshot.forEach(d => {
                     const em = d.data().email;
-                    if (em && !whitelistedAdmins.includes(em.toLowerCase())) {
-                        whitelistedAdmins.push(em.toLowerCase());
-                    }
+                    if (em) whitelistedAdmins.push(em.toLowerCase().trim());
                 });
             } catch (e) {}
         }
 
-        // Auth Listener
+        // Auth Listener - Improved to avoid loops
         onAuthStateChanged(auth, async (user) => {
-            await fetchAdminWhitelist();
-
-            if (user || isLocalPinAuth) {
-                currentUserEmail = user ? user.email.toLowerCase() : "admin@delivery.iq";
-
-                // Verify Whitelist Permission
-                if (user && !whitelistedAdmins.includes(currentUserEmail) && !isLocalPinAuth) {
-                    document.getElementById('access-denied-alert').classList.remove('hidden');
-                    await signOut(auth);
-                    showLoginScreen();
-                    return;
-                }
-
+            if (isLocalPinAuth) {
+                currentUserEmail = "admin@delivery.iq";
                 document.getElementById('user-display-email').textContent = currentUserEmail;
                 showAdminPanel();
+                return;
+            }
+
+            if (user) {
+                await fetchAdminWhitelist();
+                currentUserEmail = user.email ? user.email.toLowerCase().trim() : "";
+
+                // If whitelist is empty or user is in whitelist, grant access
+                if (whitelistedAdmins.length === 0 || whitelistedAdmins.includes(currentUserEmail)) {
+                    document.getElementById('user-display-email').textContent = currentUserEmail;
+                    showAdminPanel();
+                } else {
+                    // Not in whitelist
+                    document.getElementById('access-denied-alert').classList.remove('hidden');
+                    document.getElementById('access-alert-msg').textContent = `عذراً، الحساب (${currentUserEmail}) غير مصرح له كـ مشرف بعد! استخدم رمز الدخول 12345 لإضافته.`;
+                    showLoginScreen();
+                }
             } else {
                 showLoginScreen();
             }
@@ -469,7 +476,7 @@
             document.getElementById('admin-panel').classList.add('hidden');
         }
 
-        // Google Sign-In Login Trigger
+        // Google Login Button
         document.getElementById('btn-google-login').addEventListener('click', async () => {
             document.getElementById('access-denied-alert').classList.add('hidden');
             try {
@@ -479,22 +486,20 @@
             }
         });
 
-        // Fallback Email/PIN Login Trigger
+        // Fallback PIN Login Button
         document.getElementById('btn-login-fallback').addEventListener('click', async () => {
-            const emailInput = document.getElementById('login-email').value.trim();
             const passwordInput = document.getElementById('login-password').value.trim();
+            const emailInput = document.getElementById('login-email').value.trim();
 
             if (passwordInput === FALLBACK_PIN || emailInput === FALLBACK_PIN) {
                 isLocalPinAuth = true;
+                currentUserEmail = emailInput || "admin@delivery.iq";
+                document.getElementById('user-display-email').textContent = currentUserEmail;
                 showAdminPanel();
                 return;
             }
 
-            try {
-                await signInWithEmailAndPassword(auth, emailInput, passwordInput);
-            } catch (err) {
-                alert("بيانات الدخول غير صحيحة!");
-            }
+            alert("رمز المرور غير صحيح! الرمز الافتراضي هو 12345");
         });
 
         document.getElementById('btn-logout').addEventListener('click', async () => {
@@ -738,7 +743,7 @@
                 });
 
                 if (admins.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">لم يتم إضافة مشرفين مخصصين بعد (يتم استخدام النمط الافتراضي).</p>';
+                    container.innerHTML = '<p class="text-xs text-base-content/60">لم يتم إضافة مشرفين مخصصين بعد. أي مشرف يسجل دخول بـ Google سيُتاح له الوصول أو يمكنك إضافة إيميلك أدناه.</p>';
                     return;
                 }
 
