@@ -27,8 +27,17 @@
 </head>
 <body class="bg-base-200 min-h-screen text-base-content">
 
+    <!-- Auth Loading Screen (Prevents flickering during page refresh) -->
+    <div id="auth-loading-screen" class="fixed inset-0 bg-base-100 z-[100] flex flex-col items-center justify-center p-4">
+        <div class="inline-block p-4 rounded-full bg-primary/10 text-primary mb-3">
+            <i class="fa-solid fa-circle-notch text-4xl animate-spin"></i>
+        </div>
+        <h3 class="font-bold text-lg text-base-content">جاري التحقق من جلسة الدخول...</h3>
+        <p class="text-xs text-base-content/60 mt-1">يرجى الانتظار لحفظ واسترجاع الجلسة بأمان</p>
+    </div>
+
     <!-- Login Screen -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+    <div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4">
         <div class="card bg-base-100 shadow-2xl border border-base-300 w-full max-w-md">
             <div class="card-body p-8 text-center gap-4">
                 <div class="inline-block p-4 rounded-full bg-emerald-100 text-emerald-700 mx-auto">
@@ -51,7 +60,7 @@
                     تسجيل الدخول بنقرة واحدة عبر Google
                 </button>
 
-                <p class="text-[11px] text-base-content/50 mt-2">مفحوص ومأمن بنظام التخويل الذكي (Authorization System).</p>
+                <p class="text-[11px] text-base-content/50 mt-2">محمي بنظام الجلسات الدائمة والتحديث المباشر Real-Time.</p>
             </div>
         </div>
     </div>
@@ -127,7 +136,7 @@
 
             <!-- Sidebar Footer -->
             <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                نظام إدارة المكاتب v7.0 • Firebase Spark Quota & Cleanup
+                نظام إدارة المكاتب v8.0 • Persistent Session & Realtime
             </div>
         </aside>
 
@@ -287,7 +296,7 @@
 
                 <h3 class="font-bold text-sm text-base-content/80">المكاتب الفعالة المسجلة:</h3>
                 <div id="admin-offices-list" class="space-y-3">
-                    <p class="text-xs text-base-content/60">جاري التحميل...</p>
+                    <p class="text-xs text-base-content/60">جاري التحميل المباشر Real-Time...</p>
                 </div>
             </div>
 
@@ -313,7 +322,7 @@
                 </div>
             </div>
 
-            <!-- PANE: FIREBASE QUOTA & CLEANUP (NEW) -->
+            <!-- PANE: FIREBASE QUOTA & CLEANUP -->
             <div id="pane-quota" class="pane-content hidden space-y-4">
                 <div id="quota-denied-box" class="alert alert-warning text-xs hidden">
                     <i class="fa-solid fa-lock text-lg"></i>
@@ -321,7 +330,6 @@
                 </div>
 
                 <div id="quota-content" class="space-y-5">
-                    
                     <!-- Quota Usage Cards -->
                     <div class="card bg-base-100 shadow border border-base-300">
                         <div class="card-body p-5 gap-4">
@@ -415,7 +423,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -578,7 +585,7 @@
             <div id="pane-audit" class="pane-content hidden space-y-2">
                 <h3 class="font-bold text-sm text-base-content/80 mb-2">سجل العمليات الدقيق (Audit Trail Log):</h3>
                 <div id="audit-logs-list" class="space-y-2">
-                    <p class="text-xs text-base-content/60">جاري تحميل السجل...</p>
+                    <p class="text-xs text-base-content/60">جاري تحميل السجل المباشر Real-Time...</p>
                 </div>
             </div>
 
@@ -612,8 +619,8 @@
     <!-- Firebase JS SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAm2AwTBllo5kDgMzX7h_aFdJ-2CGu1MN4",
@@ -629,13 +636,21 @@
         const googleProvider = new GoogleAuthProvider();
         const db = getFirestore(app);
 
+        // ENSURE LOCAL PERSISTENCE FOR LOGIN SESSIONS ACROSS REFRESH
+        setPersistence(auth, browserLocalPersistence).catch(err => console.error("Persistence error:", err));
+
         let currentUserEmail = "";
-        let currentUserRole = "limited"; // Default to restricted until verified
+        let currentUserRole = "limited";
 
         let activeOfficesCache = [];
         let pendingOfficesCache = [];
         let reportsCache = [];
         let adminsCache = [];
+
+        // Realtime Unsubscribe Listeners
+        let unsubOffices = null;
+        let unsubPending = null;
+        let unsubReports = null;
 
         // Toggle Form Visibility
         const btnToggleForm = document.getElementById('btn-toggle-add-form');
@@ -724,8 +739,6 @@
                 document.getElementById(targetPane).classList.remove('hidden');
                 document.getElementById('section-header-title').textContent = paneTitle;
 
-                if (targetPane === 'pane-pending') loadPendingOffices();
-                if (targetPane === 'pane-reports') loadReports();
                 if (targetPane === 'pane-quota') loadQuotaMonitoring();
                 if (targetPane === 'pane-errors') loadSystemErrors();
                 if (targetPane === 'pane-analytics') loadAnalyticsReports();
@@ -807,8 +820,10 @@
             return maskedName + '@' + parts[1];
         }
 
-        // Auth Listener - Strict Verification
+        // AUTH LISTENER WITH PERSISTENCE RESTORATION (Prevents logouts on F5 Refresh)
         onAuthStateChanged(auth, async (user) => {
+            const loadingScreen = document.getElementById('auth-loading-screen');
+
             if (user) {
                 const userEmail = user.email ? user.email.toLowerCase().trim() : "";
                 
@@ -819,9 +834,10 @@
                     currentUserEmail = userEmail;
                     document.getElementById('user-display-email').textContent = maskEmail(currentUserEmail);
                     document.getElementById('access-denied-alert').classList.add('hidden');
+                    
                     showAdminPanel();
+                    subscribeRealtimeData(); // Enable Automatic Real-time Updates
                 } else {
-                    // REJECT ACCESS FOR UNAUTHORIZED GOOGLE USERS
                     console.warn("Unauthorized Google Sign-In attempt:", userEmail);
                     await logSystemError("محاولة دخول غير مصرح بها بـ Google", `المستخدم: ${userEmail}`);
                     
@@ -834,15 +850,15 @@
             } else {
                 showLoginScreen();
             }
+
+            // Hide auth loading screen smoothly once state is checked
+            loadingScreen.classList.add('hidden');
         });
 
         function showAdminPanel() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
             document.getElementById('admin-panel').classList.add('flex');
-            loadAdminOffices();
-            loadPendingOffices();
-            loadReports();
         }
 
         function showLoginScreen() {
@@ -863,7 +879,12 @@
         });
 
         document.getElementById('btn-logout').addEventListener('click', async () => {
-            try { await signOut(auth); } catch (e) {}
+            try { 
+                if (unsubOffices) unsubOffices();
+                if (unsubPending) unsubPending();
+                if (unsubReports) unsubReports();
+                await signOut(auth); 
+            } catch (e) {}
             showLoginScreen();
         });
 
@@ -889,6 +910,214 @@
             } catch (e) {}
         }
 
+        // --- AUTOMATIC REAL-TIME LISTENERS (onSnapshot) ---
+        function subscribeRealtimeData() {
+            // 1. Realtime Active Offices
+            const containerOffices = document.getElementById('admin-offices-list');
+            unsubOffices = onSnapshot(collection(db, "offices"), (snapshot) => {
+                containerOffices.innerHTML = '';
+                activeOfficesCache = [];
+
+                if (snapshot.empty) {
+                    containerOffices.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة مسجلة حالياً.</p>';
+                    return;
+                }
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    data.id = docSnap.id;
+                    activeOfficesCache.push(data);
+                    containerOffices.appendChild(createActiveOfficeRow(data));
+                });
+            });
+
+            // 2. Realtime Pending Offices
+            const containerPending = document.getElementById('pending-offices-list');
+            const badgePending = document.getElementById('pending-sidebar-badge');
+
+            unsubPending = onSnapshot(collection(db, "pending_offices"), (snapshot) => {
+                containerPending.innerHTML = '';
+                pendingOfficesCache = [];
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.status === 'pending') {
+                        data.id = docSnap.id;
+                        pendingOfficesCache.push(data);
+                    }
+                });
+
+                badgePending.textContent = pendingOfficesCache.length;
+
+                if (pendingOfficesCache.length === 0) {
+                    containerPending.innerHTML = '<p class="text-xs text-base-content/60">لا توجد طلبات معلقة بانتظار الموافقة. ✨</p>';
+                    return;
+                }
+
+                pendingOfficesCache.forEach(pend => {
+                    containerPending.appendChild(createPendingRow(pend));
+                });
+            });
+
+            // 3. Realtime Driver Reports
+            const containerReports = document.getElementById('reports-list');
+            const badgeReports = document.getElementById('reports-sidebar-badge');
+
+            unsubReports = onSnapshot(collection(db, "reports"), (snapshot) => {
+                containerReports.innerHTML = '';
+                reportsCache = [];
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    data.id = docSnap.id;
+                    reportsCache.push(data);
+                });
+
+                badgeReports.textContent = reportsCache.length;
+
+                if (reportsCache.length === 0) {
+                    containerReports.innerHTML = '<p class="text-xs text-base-content/60">لا توجد تبليغات حالياً. 👍</p>';
+                    return;
+                }
+
+                reportsCache.forEach(rep => {
+                    containerReports.appendChild(createReportRow(rep));
+                });
+            });
+        }
+
+        function createActiveOfficeRow(office) {
+            const row = document.createElement('div');
+            row.className = "card bg-base-100 shadow-sm border border-base-300";
+
+            row.innerHTML = `
+                <div class="card-body p-3.5 flex-row justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-sm text-base-content">${escapeHtml(office.name)}</h4>
+                        <p class="text-xs text-base-content/70 mt-0.5">
+                            📍 ${escapeHtml(office.governorate || '')} ${office.district ? '- ' + escapeHtml(office.district) : ''} | 📞 ${office.showNumber ? escapeHtml(office.phone || office.officeNumber || '') : '<span class="text-error font-bold">مخفي عن السائقين 🔒</span>'} | ⏰ ${escapeHtml(office.openTime || '08:00')} - ${escapeHtml(office.closeTime || '22:00')}
+                        </p>
+                    </div>
+
+                    <div class="dropdown dropdown-left">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm">
+                            <i class="fa-solid fa-ellipsis-vertical text-base"></i>
+                        </div>
+                        <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[20] w-48 p-2 shadow-lg border border-base-300 text-xs">
+                            <li><a class="btn-edit-act gap-2"><i class="fa-solid fa-pen-to-square text-primary"></i> تعديل البيانات</a></li>
+                            <li><a class="btn-map-act gap-2"><i class="fa-solid fa-map-pin text-emerald-600"></i> تثبيت بالخريطة</a></li>
+                            <li><a class="btn-del-act text-error gap-2"><i class="fa-solid fa-trash"></i> حذف المكتب</a></li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            row.querySelector('.btn-edit-act').onclick = () => prepareEditForm(office.id);
+            row.querySelector('.btn-map-act').onclick = () => openMapModalForOffice(office);
+            row.querySelector('.btn-del-act').onclick = async () => {
+                if (confirm(`هل أنت متأكد من حذف مكتب "${office.name}"؟`)) {
+                    await deleteDoc(doc(db, "offices", office.id));
+                    await logAudit("قام بحذف مكتب", office.name);
+                }
+            };
+
+            return row;
+        }
+
+        function createPendingRow(pend) {
+            const card = document.createElement('div');
+            card.className = 'card bg-base-100 shadow-sm border border-base-300';
+            card.innerHTML = `
+                <div class="card-body p-4 gap-2">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-base text-base-content">${escapeHtml(pend.name)} ${pend.requestCode ? `<span class="badge badge-neutral text-xs font-mono">${pend.requestCode}</span>` : ''}</h4>
+                            <p class="text-xs text-base-content/70">📍 ${escapeHtml(pend.governorate)} - ${escapeHtml(pend.district || '')}</p>
+                        </div>
+                        <span class="badge badge-warning text-xs font-bold gap-1"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
+                    </div>
+
+                    <p class="text-xs text-base-content/80 bg-base-200/50 p-2 rounded">${escapeHtml(pend.desc || 'بدون وصف إضافي')}</p>
+
+                    <div class="text-xs text-base-content/60 flex flex-wrap gap-3">
+                        <span>📞 الهاتف: <strong>${escapeHtml(pend.phone || pend.officeNumber || 'غير مسجل')}</strong> (${pend.showNumber ? 'ظاهر للسائقين' : 'مخفي 🔒'})</span>
+                    </div>
+
+                    <div class="flex gap-2 mt-2">
+                        <button class="btn btn-success btn-xs text-white flex-1 gap-1 btn-approve font-bold">
+                            <i class="fa-solid fa-circle-check"></i> موافقة مباشرة
+                        </button>
+                        <button class="btn btn-error btn-outline btn-xs gap-1 btn-reject font-bold">
+                            <i class="fa-solid fa-trash"></i> حذف الطلب
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            card.querySelector('.btn-approve').onclick = async () => {
+                if (confirm(`هل تريد موافقة مباشرة واعتمد مكتب "${pend.name}"؟`)) {
+                    const approvedData = { ...pend, updatedAt: Date.now() };
+                    delete approvedData.id;
+                    delete approvedData.status;
+
+                    await addDoc(collection(db, "offices"), approvedData);
+                    await deleteDoc(doc(db, "pending_offices", pend.id));
+                    await logAudit("وافق على طلب مكتب", pend.name);
+                    alert("تمت الموافقة المباشرة بنجاح! 🎉");
+                }
+            };
+
+            card.querySelector('.btn-reject').onclick = async () => {
+                if (confirm(`هل تريد حذف طلب مكتب "${pend.name}"؟`)) {
+                    await deleteDoc(doc(db, "pending_offices", pend.id));
+                    await logAudit("حذف طلب مكتب معلق", pend.name);
+                }
+            };
+
+            return card;
+        }
+
+        function createReportRow(rep) {
+            const card = document.createElement('div');
+            card.className = 'card bg-base-100 shadow-sm border border-base-300';
+            const dateStr = new Date(rep.timestamp || Date.now()).toLocaleDateString('ar-IQ');
+
+            card.innerHTML = `
+                <div class="card-body p-4 gap-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <strong class="text-error font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> تبليغ: ${escapeHtml(rep.reportType)}</strong>
+                        <span class="text-base-content/50">${dateStr}</span>
+                    </div>
+                    <p class="text-xs font-bold text-base-content">المكتب: ${escapeHtml(rep.officeName)}</p>
+                    ${rep.note ? `<p class="text-xs text-base-content/80 bg-base-200/60 p-2.5 rounded border border-base-300 selectable-text font-mono select-all">${escapeHtml(rep.note)}</p>` : ''}
+                    
+                    <div class="flex gap-2 mt-2">
+                        <button class="btn btn-emerald btn-success btn-xs text-white flex-1 gap-1 btn-read-rep font-bold">
+                            <i class="fa-solid fa-envelope-open-text"></i> تمت قراءة التبليغ
+                        </button>
+                        <button class="btn btn-error btn-outline btn-xs gap-1 btn-del-rep font-bold">
+                            <i class="fa-solid fa-trash"></i> حذف التبليغ
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            card.querySelector('.btn-read-rep').onclick = async () => {
+                await logAudit("قام بقراءة ومعالجة تبليغ", rep.officeName);
+                await deleteDoc(doc(db, "reports", rep.id));
+                alert("تمت القراءة والمعالجة بنجاح! ✅");
+            };
+
+            card.querySelector('.btn-del-rep').onclick = async () => {
+                if (confirm("هل تريد حذف هذا التبليغ؟")) {
+                    await logAudit("حذف تبليغ سائق", rep.officeName);
+                    await deleteDoc(doc(db, "reports", rep.id));
+                }
+            };
+
+            return card;
+        }
+
         // --- PANE: FIREBASE QUOTA MONITORING & LOG CLEANUP ---
         async function loadQuotaMonitoring() {
             const deniedBox = document.getElementById('quota-denied-box');
@@ -904,7 +1133,6 @@
             contentBox.classList.remove('hidden');
 
             try {
-                // Calculate total stored documents across collections
                 const officesSnap = await getDocs(collection(db, "offices"));
                 const pendingSnap = await getDocs(collection(db, "pending_offices"));
                 const reportsSnap = await getDocs(collection(db, "reports"));
@@ -916,7 +1144,6 @@
 
                 document.getElementById('quota-docs-count').textContent = `${totalDocs} مستند`;
 
-                // Estimated Daily Reads / Writes based on active visits and logs
                 const estReads = visitsSnap.size * 3 + officesSnap.size * 2 + 50;
                 const estWrites = visitsSnap.size + auditSnap.size + errorSnap.size + 10;
 
@@ -974,227 +1201,6 @@
                 loadQuotaMonitoring();
             }
         });
-
-        // --- PANE 1: ACTIVE OFFICES ---
-        async function loadAdminOffices() {
-            const container = document.getElementById('admin-offices-list');
-            container.innerHTML = '<p class="text-xs text-base-content/60">جاري التحميل...</p>';
-
-            try {
-                const snapshot = await getDocs(collection(db, "offices"));
-                container.innerHTML = '';
-                activeOfficesCache = [];
-
-                if (snapshot.empty) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة مسجلة حالياً.</p>';
-                    return;
-                }
-
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    data.id = docSnap.id;
-                    activeOfficesCache.push(data);
-                    container.appendChild(createActiveOfficeRow(data));
-                });
-            } catch (e) {
-                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد مكاتب فعالة مسجلة حالياً.</p>';
-            }
-        }
-
-        function createActiveOfficeRow(office) {
-            const row = document.createElement('div');
-            row.className = "card bg-base-100 shadow-sm border border-base-300";
-
-            row.innerHTML = `
-                <div class="card-body p-3.5 flex-row justify-between items-center">
-                    <div>
-                        <h4 class="font-bold text-sm text-base-content">${escapeHtml(office.name)}</h4>
-                        <p class="text-xs text-base-content/70 mt-0.5">
-                            📍 ${escapeHtml(office.governorate || '')} ${office.district ? '- ' + escapeHtml(office.district) : ''} | 📞 ${office.showNumber ? escapeHtml(office.phone || office.officeNumber || '') : '<span class="text-error font-bold">مخفي عن السائقين 🔒</span>'} | ⏰ ${escapeHtml(office.openTime || '08:00')} - ${escapeHtml(office.closeTime || '22:00')}
-                        </p>
-                    </div>
-
-                    <div class="dropdown dropdown-left">
-                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm">
-                            <i class="fa-solid fa-ellipsis-vertical text-base"></i>
-                        </div>
-                        <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[20] w-48 p-2 shadow-lg border border-base-300 text-xs">
-                            <li><a class="btn-edit-act gap-2"><i class="fa-solid fa-pen-to-square text-primary"></i> تعديل البيانات</a></li>
-                            <li><a class="btn-map-act gap-2"><i class="fa-solid fa-map-pin text-emerald-600"></i> تثبيت بالخريطة</a></li>
-                            <li><a class="btn-del-act text-error gap-2"><i class="fa-solid fa-trash"></i> حذف المكتب</a></li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-
-            row.querySelector('.btn-edit-act').onclick = () => prepareEditForm(office.id);
-            row.querySelector('.btn-map-act').onclick = () => openMapModalForOffice(office);
-            row.querySelector('.btn-del-act').onclick = async () => {
-                if (confirm(`هل أنت متأكد من حذف مكتب "${office.name}"؟`)) {
-                    await deleteDoc(doc(db, "offices", office.id));
-                    await logAudit("قام بحذف مكتب", office.name);
-                    loadAdminOffices();
-                }
-            };
-
-            return row;
-        }
-
-        // --- PANE 2: PENDING APPROVALS ---
-        async function loadPendingOffices() {
-            const container = document.getElementById('pending-offices-list');
-            const badgeSidebar = document.getElementById('pending-sidebar-badge');
-
-            try {
-                const snapshot = await getDocs(collection(db, "pending_offices"));
-                container.innerHTML = '';
-                pendingOfficesCache = [];
-
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    if (data.status === 'pending') {
-                        data.id = docSnap.id;
-                        pendingOfficesCache.push(data);
-                    }
-                });
-
-                badgeSidebar.textContent = pendingOfficesCache.length;
-
-                if (pendingOfficesCache.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد طلبات معلقة بانتظار الموافقة. ✨</p>';
-                    return;
-                }
-
-                pendingOfficesCache.forEach(pend => {
-                    const card = document.createElement('div');
-                    card.className = 'card bg-base-100 shadow-sm border border-base-300';
-                    card.innerHTML = `
-                        <div class="card-body p-4 gap-2">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="font-bold text-base text-base-content">${escapeHtml(pend.name)} ${pend.requestCode ? `<span class="badge badge-neutral text-xs font-mono">${pend.requestCode}</span>` : ''}</h4>
-                                    <p class="text-xs text-base-content/70">📍 ${escapeHtml(pend.governorate)} - ${escapeHtml(pend.district || '')}</p>
-                                </div>
-                                <span class="badge badge-warning text-xs font-bold gap-1"><i class="fa-solid fa-hourglass-half"></i> معلق</span>
-                            </div>
-
-                            <p class="text-xs text-base-content/80 bg-base-200/50 p-2 rounded">${escapeHtml(pend.desc || 'بدون وصف إضافي')}</p>
-
-                            <div class="text-xs text-base-content/60 flex flex-wrap gap-3">
-                                <span>📞 الهاتف: <strong>${escapeHtml(pend.phone || pend.officeNumber || 'غير مسجل')}</strong> (${pend.showNumber ? 'ظاهر للسائقين' : 'مخفي 🔒'})</span>
-                            </div>
-
-                            <div class="flex gap-2 mt-2">
-                                <button class="btn btn-success btn-xs text-white flex-1 gap-1 btn-approve font-bold">
-                                    <i class="fa-solid fa-circle-check"></i> موافقة مباشرة
-                                </button>
-                                <button class="btn btn-error btn-outline btn-xs gap-1 btn-reject font-bold">
-                                    <i class="fa-solid fa-trash"></i> حذف الطلب
-                                </button>
-                            </div>
-                        </div>
-                    `;
-
-                    card.querySelector('.btn-approve').onclick = async () => {
-                        if (confirm(`هل تريد موافقة مباشرة واعتمد مكتب "${pend.name}"؟`)) {
-                            const approvedData = { ...pend, updatedAt: Date.now() };
-                            delete approvedData.id;
-                            delete approvedData.status;
-
-                            await addDoc(collection(db, "offices"), approvedData);
-                            await deleteDoc(doc(db, "pending_offices", pend.id));
-                            await logAudit("وافق على طلب مكتب", pend.name);
-
-                            loadPendingOffices();
-                            loadAdminOffices();
-                            alert("تمت الموافقة المباشرة بنجاح! 🎉");
-                        }
-                    };
-
-                    card.querySelector('.btn-reject').onclick = async () => {
-                        if (confirm(`هل تريد حذف طلب مكتب "${pend.name}"؟`)) {
-                            await deleteDoc(doc(db, "pending_offices", pend.id));
-                            await logAudit("حذف طلب مكتب معلق", pend.name);
-                            loadPendingOffices();
-                        }
-                    };
-
-                    container.appendChild(card);
-                });
-            } catch (e) {
-                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد طلبات معلقة بانتظار الموافقة.</p>';
-            }
-        }
-
-        // --- PANE 3: DRIVER REPORTS ---
-        async function loadReports() {
-            const container = document.getElementById('reports-list');
-            const badgeSidebar = document.getElementById('reports-sidebar-badge');
-
-            try {
-                const snapshot = await getDocs(collection(db, "reports"));
-                container.innerHTML = '';
-                reportsCache = [];
-
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    data.id = docSnap.id;
-                    reportsCache.push(data);
-                });
-
-                badgeSidebar.textContent = reportsCache.length;
-
-                if (reportsCache.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد تبليغات حالياً. 👍</p>';
-                    return;
-                }
-
-                reportsCache.forEach(rep => {
-                    const card = document.createElement('div');
-                    card.className = 'card bg-base-100 shadow-sm border border-base-300';
-                    const dateStr = new Date(rep.timestamp || Date.now()).toLocaleDateString('ar-IQ');
-
-                    card.innerHTML = `
-                        <div class="card-body p-4 gap-2">
-                            <div class="flex justify-between items-center text-xs">
-                                <strong class="text-error font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> تبليغ: ${escapeHtml(rep.reportType)}</strong>
-                                <span class="text-base-content/50">${dateStr}</span>
-                            </div>
-                            <p class="text-xs font-bold text-base-content">المكتب: ${escapeHtml(rep.officeName)}</p>
-                            ${rep.note ? `<p class="text-xs text-base-content/80 bg-base-200/60 p-2.5 rounded border border-base-300 selectable-text font-mono select-all">${escapeHtml(rep.note)}</p>` : ''}
-                            
-                            <div class="flex gap-2 mt-2">
-                                <button class="btn btn-emerald btn-success btn-xs text-white flex-1 gap-1 btn-read-rep font-bold">
-                                    <i class="fa-solid fa-envelope-open-text"></i> تمت قراءة التبليغ
-                                </button>
-                                <button class="btn btn-error btn-outline btn-xs gap-1 btn-del-rep font-bold">
-                                    <i class="fa-solid fa-trash"></i> حذف التبليغ
-                                </button>
-                            </div>
-                        </div>
-                    `;
-
-                    card.querySelector('.btn-read-rep').onclick = async () => {
-                        await logAudit("قام بقراءة ومعالجة تبليغ", rep.officeName);
-                        await deleteDoc(doc(db, "reports", rep.id));
-                        loadReports();
-                        alert("تمت القراءة والمعالجة بنجاح! ✅");
-                    };
-
-                    card.querySelector('.btn-del-rep').onclick = async () => {
-                        if (confirm("هل تريد حذف هذا التبليغ؟")) {
-                            await logAudit("حذف تبليغ سائق", rep.officeName);
-                            await deleteDoc(doc(db, "reports", rep.id));
-                            loadReports();
-                        }
-                    };
-
-                    container.appendChild(card);
-                });
-            } catch (e) {
-                container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد تبليغات مسجلة.</p>';
-            }
-        }
 
         // --- PANE: SYSTEM ERRORS & FAILED ATTEMPTS ---
         async function loadSystemErrors() {
@@ -1483,7 +1489,6 @@
                 const officeObj = activeOfficesCache.find(o => o.id === activeMapOfficeId);
                 await logAudit("قام بتحديث الموقع الخريطة", officeObj ? officeObj.name : 'مكتب');
                 document.getElementById('map-modal-dialog').close();
-                loadAdminOffices();
                 alert("تم تحديث موقع الدبوس بنجاح! 📍");
             } catch (e) {
                 alert("حدث خطأ أثناء الحفظ!");
@@ -1569,7 +1574,6 @@
                 }
                 resetForm();
                 officeFormCard.classList.add('hidden');
-                loadAdminOffices();
                 alert("تم الحفظ بنجاح! ✅");
             } catch (e) {
                 alert("حدث خطأ أثناء حفظ البيانات!");
