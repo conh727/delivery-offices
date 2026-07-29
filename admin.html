@@ -116,7 +116,7 @@
 
             <!-- Sidebar Footer -->
             <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                نظام إدارة المكاتب v4.5 • Iraq
+                نظام إدارة المكاتب v5.0 • Iraq
             </div>
         </aside>
 
@@ -302,7 +302,7 @@
                 </div>
             </div>
 
-            <!-- PANE: SYSTEM ERRORS & FAILED ATTEMPTS (NEW) -->
+            <!-- PANE: SYSTEM ERRORS & FAILED ATTEMPTS -->
             <div id="pane-errors" class="pane-content hidden space-y-4">
                 <div id="errors-denied-box" class="alert alert-warning text-xs hidden">
                     <i class="fa-solid fa-lock text-lg"></i>
@@ -513,7 +513,7 @@
         const db = getFirestore(app);
 
         let currentUserEmail = "";
-        let currentUserRole = "full"; // Default full access for owner
+        let currentUserRole = "full"; // Owner / Full admin default
 
         let activeOfficesCache = [];
         let pendingOfficesCache = [];
@@ -637,29 +637,38 @@
         document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل المكاتب والفروع للسائقين في العراق: ' + registerFullUrl)}`;
         document.getElementById('btn-share-driver-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط صفحة البحث وتصفح مكاتب التوديع للسائقين في العراق: ' + driverFullUrl)}`;
 
-        // Check Admin Role
+        // Check Admin Role (Resilient)
         async function fetchAdminRole(email) {
+            const cleanEmail = (email || "").toLowerCase().trim();
+            
+            // Hardcode Owner protection
+            if (cleanEmail === "conh727@gmail.com" || cleanEmail.includes("conh727")) {
+                currentUserRole = "owner";
+                return;
+            }
+
             try {
                 const snapshot = await getDocs(collection(db, "whitelisted_admins"));
                 adminsCache = [];
-                let foundRole = "full";
+                let foundRole = "full"; // Default full access
 
                 snapshot.forEach(d => {
                     const data = d.data();
                     data.id = d.id;
                     adminsCache.push(data);
-                    if (data.email && data.email.toLowerCase().trim() === email.toLowerCase().trim()) {
+                    if (data.email && data.email.toLowerCase().trim() === cleanEmail) {
                         foundRole = data.role || "full";
                     }
                 });
 
                 currentUserRole = foundRole;
             } catch (e) {
+                console.log("Admin role check notice:", e);
                 currentUserRole = "full";
             }
         }
 
-        // Email Masking Helper (Only Owner sees full email, others see c***7@gmail.com)
+        // Email Masking Helper (Owner sees full email, others see c***7@gmail.com)
         function maskEmail(email) {
             if (!email) return 'مشرف';
             if (currentUserRole === 'owner' || currentUserEmail === 'conh727@gmail.com') {
@@ -844,7 +853,7 @@
                             <p class="text-xs text-base-content/80 bg-base-200/50 p-2 rounded">${escapeHtml(pend.desc || 'بدون وصف إضافي')}</p>
 
                             <div class="text-xs text-base-content/60 flex flex-wrap gap-3">
-                                <span>📞 الهاتف: <strong>${escapeHtml(pend.phone || pend.officeNumber || 'غير مسجل')}</strong> (${pend.showNumber ? 'ظاهر' : 'مخفي 🔒'})</span>
+                                <span>📞 الهاتف: <strong>${escapeHtml(pend.phone || pend.officeNumber || 'غير مسجل')}</strong> (${pend.showNumber ? 'ظاهر للسائقين' : 'مخفي 🔒'})</span>
                             </div>
 
                             <div class="flex gap-2 mt-2">
@@ -1044,7 +1053,7 @@
                     if (vDate.startsWith(monthStr)) monthCount++;
                     if (vDate.startsWith(yearStr)) yearCount++;
 
-                    const gov = data.governorate || "غير محدد";
+                    const gov = data.governorate || "عام";
                     govMap[gov] = (govMap[gov] || 0) + 1;
                 });
 
