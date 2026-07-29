@@ -60,7 +60,7 @@
                     تسجيل الدخول بنقرة واحدة عبر Google
                 </button>
 
-                <p class="text-[11px] text-base-content/50 mt-2">محمي بنظام الجلسات الدائمة والتحديث المباشر Real-Time.</p>
+                <p class="text-[11px] text-base-content/50 mt-2">محمي بنظام الجلسات الدائمة والمرصد الأمني الذكي.</p>
             </div>
         </div>
     </div>
@@ -136,7 +136,7 @@
 
             <!-- Sidebar Footer -->
             <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                نظام إدارة المكاتب v8.0 • Persistent Session & Realtime
+                نظام إدارة المكاتب v9.0 • Fixed Sections & Security Logging
             </div>
         </aside>
 
@@ -436,7 +436,7 @@
                 <div id="errors-content" class="space-y-4">
                     <div class="alert alert-error text-xs shadow text-white">
                         <i class="fa-solid fa-shield-virus text-lg"></i>
-                        <span><strong>سجل الأخطاء ومحاولات الفشل:</strong> رصد جميع محاولات الدخول غير المصرح بها أو الأخطاء التقنية بالنظام.</span>
+                        <span><strong>سجل الأخطاء ومحاولات الفشل:</strong> رصد جميع محاولات الدخول غير المصرح بها أو الأخطاء التقنية بالنظام تلقائياً.</span>
                     </div>
 
                     <div id="system-errors-list" class="space-y-3">
@@ -651,6 +651,8 @@
         let unsubOffices = null;
         let unsubPending = null;
         let unsubReports = null;
+        let unsubErrors = null;
+        let unsubVisits = null;
 
         // Toggle Form Visibility
         const btnToggleForm = document.getElementById('btn-toggle-add-form');
@@ -838,9 +840,18 @@
                     showAdminPanel();
                     subscribeRealtimeData(); // Enable Automatic Real-time Updates
                 } else {
-                    console.warn("Unauthorized Google Sign-In attempt:", userEmail);
-                    await logSystemError("محاولة دخول غير مصرح بها بـ Google", `المستخدم: ${userEmail}`);
+                    console.warn("Unauthorized Google Sign-In attempt detected & logged:", userEmail);
                     
+                    // AUTOMATIC SECURITY LOGGING FOR NEW UNAUTHORIZED GOOGLE ACCOUNTS
+                    try {
+                        await addDoc(collection(db, "system_errors"), {
+                            errorType: "محاولة دخول غير مصرح بها بـ Google 🚨",
+                            details: `تم رصد محاولة دخول بحساب Google غير مسجل في قائمة المشرفين: (${userEmail})`,
+                            userEmail: userEmail,
+                            timestamp: Date.now()
+                        });
+                    } catch (e) { console.error(e); }
+
                     document.getElementById('access-denied-alert').classList.remove('hidden');
                     document.getElementById('access-alert-msg').textContent = `عذراً، البريد (${userEmail}) غير مصرح له بالدخول كـ مشرف! ليس لديك صلاحية الوصول.`;
                     
@@ -851,7 +862,6 @@
                 showLoginScreen();
             }
 
-            // Hide auth loading screen smoothly once state is checked
             loadingScreen.classList.add('hidden');
         });
 
@@ -883,6 +893,8 @@
                 if (unsubOffices) unsubOffices();
                 if (unsubPending) unsubPending();
                 if (unsubReports) unsubReports();
+                if (unsubErrors) unsubErrors();
+                if (unsubVisits) unsubVisits();
                 await signOut(auth); 
             } catch (e) {}
             showLoginScreen();
@@ -983,6 +995,22 @@
                 reportsCache.forEach(rep => {
                     containerReports.appendChild(createReportRow(rep));
                 });
+            });
+
+            // 4. Realtime System Errors & Unauthorized Attempts Monitoring
+            unsubErrors = onSnapshot(collection(db, "system_errors"), () => {
+                const paneErrors = document.getElementById('pane-errors');
+                if (!paneErrors.classList.contains('hidden')) {
+                    loadSystemErrors();
+                }
+            });
+
+            // 5. Realtime Driver Visit Analytics Monitoring
+            unsubVisits = onSnapshot(collection(db, "page_visits"), () => {
+                const paneAnalytics = document.getElementById('pane-analytics');
+                if (!paneAnalytics.classList.contains('hidden')) {
+                    loadAnalyticsReports();
+                }
             });
         }
 
@@ -1202,7 +1230,7 @@
             }
         });
 
-        // --- PANE: SYSTEM ERRORS & FAILED ATTEMPTS ---
+        // --- PANE: SYSTEM ERRORS & FAILED ATTEMPTS (FIXED & RESILIENT) ---
         async function loadSystemErrors() {
             const deniedBox = document.getElementById('errors-denied-box');
             const contentBox = document.getElementById('errors-content');
@@ -1236,20 +1264,21 @@
                     item.className = 'bg-base-100 p-4 rounded-xl border border-rose-200 shadow-sm text-xs space-y-1.5';
                     item.innerHTML = `
                         <div class="flex justify-between items-center">
-                            <strong class="text-error font-bold flex items-center gap-1"><i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.errorType)}</strong>
+                            <strong class="text-error font-bold flex items-center gap-1"><i class="fa-solid fa-shield-cat"></i> ${escapeHtml(err.errorType || 'رصد أمني')}</strong>
                             <span class="text-base-content/50 text-[11px]">${timeStr}</span>
                         </div>
-                        <p class="text-base-content/80 font-mono text-[11px] bg-rose-50 p-2 rounded border border-rose-100">${escapeHtml(err.details || 'بدون تفاصيل إضافية')}</p>
-                        <div class="text-[11px] text-base-content/60">بواسطة: <strong>${escapeHtml(maskEmail(err.userEmail))}</strong></div>
+                        <p class="text-base-content/80 font-mono text-[11px] bg-rose-50 p-2.5 rounded border border-rose-100 selectable-text select-all">${escapeHtml(err.details || 'بدون تفاصيل إضافية')}</p>
+                        <div class="text-[11px] text-base-content/60">البريد المرصود: <strong dir="ltr">${escapeHtml(maskEmail(err.userEmail))}</strong></div>
                     `;
                     container.appendChild(item);
                 });
             } catch (e) {
+                console.error("System errors load error:", e);
                 container.innerHTML = '<p class="text-xs text-base-content/60">لا توجد أخطاء مسجلة حالياً.</p>';
             }
         }
 
-        // --- PANE: ANALYTICS & VISIT REPORTS ---
+        // --- PANE: ANALYTICS & VISIT REPORTS (FIXED & RESILIENT) ---
         async function loadAnalyticsReports() {
             const deniedBox = document.getElementById('analytics-denied-box');
             const contentBox = document.getElementById('analytics-content');
@@ -1282,12 +1311,12 @@
                     const data = d.data();
                     totalCount++;
 
-                    const vDate = data.dateStr || "";
+                    const vDate = data.dateStr || (data.timestamp ? new Date(data.timestamp).toISOString().split('T')[0] : todayStr);
                     if (vDate === todayStr) todayCount++;
                     if (vDate.startsWith(monthStr)) monthCount++;
                     if (vDate.startsWith(yearStr)) yearCount++;
 
-                    const gov = data.governorate || "عام";
+                    const gov = data.governorate || "عام (جميع المحافظات)";
                     govMap[gov] = (govMap[gov] || 0) + 1;
                 });
 
@@ -1300,7 +1329,7 @@
                 const sortedGovs = Object.keys(govMap).sort((a, b) => govMap[b] - govMap[a]);
 
                 if (sortedGovs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4">لا توجد زيارات مسجلة حتى الآن.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-base-content/60">لا توجد زيارات مسجلة حتى الآن.</td></tr>';
                     return;
                 }
 
@@ -1565,7 +1594,7 @@
 
             try {
                 if (editId) {
-                    await updateDoc(doc(db, "offices", editId), officeData);
+                    await updateDoc(doc(doc(db, "offices", editId)), officeData);
                     await logAudit("عدل معلومات مكتب", name);
                 } else {
                     officeData.createdAt = Date.now();
