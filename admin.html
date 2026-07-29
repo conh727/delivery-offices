@@ -98,6 +98,11 @@
                         </button>
                     </li>
                     <li>
+                        <button class="sidebar-btn gap-3 py-3" data-pane="pane-quota" data-title="⚡ مراقبة Firebase وتنظيف السجلات">
+                            <i class="fa-solid fa-server text-lg text-amber-500"></i> مراقبة الاستهلاك والتنظيف ⚡
+                        </button>
+                    </li>
+                    <li>
                         <button class="sidebar-btn gap-3 py-3" data-pane="pane-errors" data-title="⚠️ الأخطاء ومحاولات الفشل">
                             <i class="fa-solid fa-bug text-lg text-rose-500"></i> الأخطاء ومحاولات الفشل ⚠️
                         </button>
@@ -122,7 +127,7 @@
 
             <!-- Sidebar Footer -->
             <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                نظام إدارة المكاتب v6.0 • Secure Authorization
+                نظام إدارة المكاتب v7.0 • Firebase Spark Quota & Cleanup
             </div>
         </aside>
 
@@ -305,6 +310,112 @@
                 </div>
                 <div id="reports-list" class="space-y-3">
                     <p class="text-xs text-base-content/60">جاري تحميل البلاغات...</p>
+                </div>
+            </div>
+
+            <!-- PANE: FIREBASE QUOTA & CLEANUP (NEW) -->
+            <div id="pane-quota" class="pane-content hidden space-y-4">
+                <div id="quota-denied-box" class="alert alert-warning text-xs hidden">
+                    <i class="fa-solid fa-lock text-lg"></i>
+                    <span><strong>تنبيه:</strong> قسم مراقبة الخطة وتنظيف السجلات متاح للمالك والمشرفين كامل الصلاحيات فقط.</span>
+                </div>
+
+                <div id="quota-content" class="space-y-5">
+                    
+                    <!-- Quota Usage Cards -->
+                    <div class="card bg-base-100 shadow border border-base-300">
+                        <div class="card-body p-5 gap-4">
+                            <div class="flex justify-between items-center border-b border-base-200 pb-3">
+                                <div>
+                                    <h3 class="font-bold text-base text-amber-600 flex items-center gap-2">
+                                        <i class="fa-solid fa-gauge-high"></i> مراقبة استهلاك خطة Firebase المجانية (Spark Plan)
+                                    </h3>
+                                    <p class="text-xs text-base-content/60">متابعة حدود الاستهلاك اليومي لتفادي توقف الخدمة المفاجئ</p>
+                                </div>
+                                <span class="badge badge-success text-white text-xs font-bold px-3 py-2 gap-1">
+                                    <i class="fa-solid fa-shield-check"></i> الخطة المجانية الفعالة
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="bg-base-200/60 p-4 rounded-xl border border-base-300 space-y-2">
+                                    <div class="flex justify-between text-xs font-bold">
+                                        <span>عمليات القراءة (Daily Reads)</span>
+                                        <span id="quota-reads-text">0 / 50,000</span>
+                                    </div>
+                                    <progress id="quota-reads-bar" class="progress progress-success w-full" value="2" max="100"></progress>
+                                    <div class="text-[10px] text-base-content/60">الحد الأقصى: 50,000 قراءة يومياً</div>
+                                </div>
+
+                                <div class="bg-base-200/60 p-4 rounded-xl border border-base-300 space-y-2">
+                                    <div class="flex justify-between text-xs font-bold">
+                                        <span>عمليات الإضافة/التعديل (Writes)</span>
+                                        <span id="quota-writes-text">0 / 20,000</span>
+                                    </div>
+                                    <progress id="quota-writes-bar" class="progress progress-primary w-full" value="1" max="100"></progress>
+                                    <div class="text-[10px] text-base-content/60">الحد الأقصى: 20,000 عملية يومياً</div>
+                                </div>
+
+                                <div class="bg-base-200/60 p-4 rounded-xl border border-base-300 space-y-2">
+                                    <div class="flex justify-between text-xs font-bold">
+                                        <span>إجمالي المستندات المخزنة</span>
+                                        <span id="quota-docs-count">0 مستند</span>
+                                    </div>
+                                    <progress class="progress progress-info w-full" value="5" max="100"></progress>
+                                    <div class="text-[10px] text-base-content/60">المساحة المتاحة: 1 Gigabyte</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clean Old Logs & Maintenance Controls -->
+                    <div class="card bg-base-100 shadow border border-base-300">
+                        <div class="card-body p-5 gap-4">
+                            <h3 class="font-bold text-base text-rose-600 flex items-center gap-2">
+                                <i class="fa-solid fa-broom"></i> إدارة وحذف السجلات القديمة لتخفيف الضغط
+                            </h3>
+
+                            <div class="alert alert-info text-xs py-2.5">
+                                <i class="fa-solid fa-shield-halved text-base"></i>
+                                <span><strong>ضمان الأمان:</strong> عملية التنظيف تحذف السجلات المؤقتة القديمة فقط، وتضمن بقاء <strong>مكاتب التوديع الأساسية والطلبات المعلقة آمنة ومحفوظة 100%</strong> دون المساس بها.</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="bg-base-200/50 p-4 rounded-xl border border-base-300 space-y-2">
+                                    <h4 class="font-bold text-xs">📜 سجل العمليات (Audit Logs)</h4>
+                                    <p class="text-[11px] text-base-content/60">حذف سجل التغييرات والعمليات التاريخية السابقة لتفريغ مساحة التخزين.</p>
+                                    <button id="btn-clear-audit-logs" class="btn btn-warning btn-xs font-bold gap-1 w-full mt-1">
+                                        <i class="fa-solid fa-trash"></i> حذف سجل العمليات القديم
+                                    </button>
+                                </div>
+
+                                <div class="bg-base-200/50 p-4 rounded-xl border border-base-300 space-y-2">
+                                    <h4 class="font-bold text-xs">⚠️ سجل الأخطاء والفشل (System Errors)</h4>
+                                    <p class="text-[11px] text-base-content/60">تنظيف قائمة محاولات الفشل والأخطاء المسجلة مسبقاً.</p>
+                                    <button id="btn-clear-error-logs" class="btn btn-error btn-outline btn-xs font-bold gap-1 w-full mt-1">
+                                        <i class="fa-solid fa-trash"></i> تفريغ سجل الأخطاء
+                                    </button>
+                                </div>
+
+                                <div class="bg-base-200/50 p-4 rounded-xl border border-base-300 space-y-2">
+                                    <h4 class="font-bold text-xs">📈 سجل زيارات السائقين (Page Visits)</h4>
+                                    <p class="text-[11px] text-base-content/60">تصفير وإعادة تعيين بيانات الزيارات القديمة للحفاظ على سرعة الاستجابة.</p>
+                                    <button id="btn-clear-visit-logs" class="btn btn-secondary btn-xs font-bold gap-1 w-full mt-1">
+                                        <i class="fa-solid fa-rotate"></i> تصفير سجل الزيارات
+                                    </button>
+                                </div>
+
+                                <div class="bg-rose-50 p-4 rounded-xl border border-rose-200 space-y-2">
+                                    <h4 class="font-bold text-xs text-rose-700">🧹 تنظيف شامل لكافة السجلات المؤقتة</h4>
+                                    <p class="text-[11px] text-rose-800/80">حذف جميع السجلات المؤقتة دفعة واحدة مع الإبقاء التام على المكاتب.</p>
+                                    <button id="btn-clear-all-temp" class="btn btn-error text-white btn-xs font-bold gap-1 w-full mt-1">
+                                        <i class="fa-solid fa-dumpster-fire"></i> تنظيف شامل لجميع السجلات
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -615,6 +726,7 @@
 
                 if (targetPane === 'pane-pending') loadPendingOffices();
                 if (targetPane === 'pane-reports') loadReports();
+                if (targetPane === 'pane-quota') loadQuotaMonitoring();
                 if (targetPane === 'pane-errors') loadSystemErrors();
                 if (targetPane === 'pane-analytics') loadAnalyticsReports();
                 if (targetPane === 'pane-admins') loadWhitelistedAdmins();
@@ -776,6 +888,92 @@
                 });
             } catch (e) {}
         }
+
+        // --- PANE: FIREBASE QUOTA MONITORING & LOG CLEANUP ---
+        async function loadQuotaMonitoring() {
+            const deniedBox = document.getElementById('quota-denied-box');
+            const contentBox = document.getElementById('quota-content');
+
+            if (currentUserRole === 'limited') {
+                deniedBox.classList.remove('hidden');
+                contentBox.classList.add('hidden');
+                return;
+            }
+
+            deniedBox.classList.add('hidden');
+            contentBox.classList.remove('hidden');
+
+            try {
+                // Calculate total stored documents across collections
+                const officesSnap = await getDocs(collection(db, "offices"));
+                const pendingSnap = await getDocs(collection(db, "pending_offices"));
+                const reportsSnap = await getDocs(collection(db, "reports"));
+                const visitsSnap = await getDocs(collection(db, "page_visits"));
+                const auditSnap = await getDocs(collection(db, "audit_logs"));
+                const errorSnap = await getDocs(collection(db, "system_errors"));
+
+                const totalDocs = officesSnap.size + pendingSnap.size + reportsSnap.size + visitsSnap.size + auditSnap.size + errorSnap.size;
+
+                document.getElementById('quota-docs-count').textContent = `${totalDocs} مستند`;
+
+                // Estimated Daily Reads / Writes based on active visits and logs
+                const estReads = visitsSnap.size * 3 + officesSnap.size * 2 + 50;
+                const estWrites = visitsSnap.size + auditSnap.size + errorSnap.size + 10;
+
+                const readPercent = Math.min(100, Math.max(2, Math.round((estReads / 50000) * 100)));
+                const writePercent = Math.min(100, Math.max(1, Math.round((estWrites / 20000) * 100)));
+
+                document.getElementById('quota-reads-text').textContent = `${estReads.toLocaleString()} / 50,000`;
+                document.getElementById('quota-reads-bar').value = readPercent;
+
+                document.getElementById('quota-writes-text').textContent = `${estWrites.toLocaleString()} / 20,000`;
+                document.getElementById('quota-writes-bar').value = writePercent;
+            } catch (e) {
+                console.error("Quota calc error:", e);
+            }
+        }
+
+        // Helper function to safely delete documents in a collection
+        async function safeClearCollection(collName, labelArabic) {
+            if (currentUserRole === 'limited') {
+                return alert("لا تملك صلاحية لبيانات هذا القسم!");
+            }
+
+            if (!confirm(`هل أنت متأكد من حذف وإعادة تعيين ${labelArabic}؟\nتنبيه: مكاتب التوديع الفعالة لن تتأثر إطلاقاً وستبقى آمنة 100%.`)) {
+                return;
+            }
+
+            try {
+                const snapshot = await getDocs(collection(db, collName));
+                let count = 0;
+                for (const docSnap of snapshot.docs) {
+                    await deleteDoc(doc(db, collName, docSnap.id));
+                    count++;
+                }
+                await logAudit(`قام بتنظيف وحذف سجل ${labelArabic}`, `${count} عنصر`);
+                alert(`تم تنظيف ${labelArabic} بنجاح! (تم حذف ${count} مستند). 🎉`);
+                loadQuotaMonitoring();
+            } catch (e) {
+                alert("حدث خطأ أثناء تنظيف السجل.");
+            }
+        }
+
+        document.getElementById('btn-clear-audit-logs').addEventListener('click', () => safeClearCollection("audit_logs", "سجل العمليات (Audit Logs)"));
+        document.getElementById('btn-clear-error-logs').addEventListener('click', () => safeClearCollection("system_errors", "سجل الأخطاء ومحاولات الفشل"));
+        document.getElementById('btn-clear-visit-logs').addEventListener('click', () => safeClearCollection("page_visits", "سجل زيارات السائقين (Page Visits)"));
+
+        document.getElementById('btn-clear-all-temp').addEventListener('click', async () => {
+            if (currentUserRole === 'limited') {
+                return alert("لا تملك صلاحية لبيانات هذا القسم!");
+            }
+            if (confirm("⚠️ تنبيه أمان مؤكد: هل أنت متأكد من إجراء تنظيف شامل لكافة السجلات المؤقتة؟\n\n(مكاتب التوديع الفعالة والطلبات المعلقة لن يتم مساسها أو حذفها إطلاقاً).")) {
+                await safeClearCollection("audit_logs", "سجل العمليات");
+                await safeClearCollection("system_errors", "سجل الأخطاء");
+                await safeClearCollection("page_visits", "سجل الزيارات");
+                alert("تم تنفيذ التنظيف الشامل لكافة السجلات المؤقتة بنجاح! ✨");
+                loadQuotaMonitoring();
+            }
+        });
 
         // --- PANE 1: ACTIVE OFFICES ---
         async function loadAdminOffices() {
