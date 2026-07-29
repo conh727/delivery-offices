@@ -37,6 +37,12 @@
                 <h2 class="font-bold text-2xl text-base-content">نظام إدارة مكاتب التوديع</h2>
                 <p class="text-xs text-base-content/60">لوحة المشرفين والمساهمين المعتمدين في العراق 🇮🇶</p>
 
+                <!-- Access Denied Alert -->
+                <div id="access-denied-alert" class="alert alert-error text-xs hidden my-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span id="access-alert-msg">عذراً، البريد غير مصرح له بالدخول كـ مشرف! ليس لديك صلاحية الوصول.</span>
+                </div>
+
                 <div class="divider text-xs text-base-content/40 my-2">تسجيل الدخول الآمن للمشرفين</div>
 
                 <!-- Google Sign In Button -->
@@ -45,7 +51,7 @@
                     تسجيل الدخول بنقرة واحدة عبر Google
                 </button>
 
-                <p class="text-[11px] text-base-content/50 mt-2">محمي بنظام المشرفين المعتمدين وتشفير سحابي متكامل.</p>
+                <p class="text-[11px] text-base-content/50 mt-2">مفحوص ومأمن بنظام التخويل الذكي (Authorization System).</p>
             </div>
         </div>
     </div>
@@ -116,7 +122,7 @@
 
             <!-- Sidebar Footer -->
             <div class="border-t border-base-200 pt-3 text-center text-[11px] text-base-content/50">
-                نظام إدارة المكاتب v5.0 • Iraq
+                نظام إدارة المكاتب v6.0 • Secure Authorization
             </div>
         </aside>
 
@@ -513,7 +519,7 @@
         const db = getFirestore(app);
 
         let currentUserEmail = "";
-        let currentUserRole = "full"; // Owner / Full admin default
+        let currentUserRole = "limited"; // Default to restricted until verified
 
         let activeOfficesCache = [];
         let pendingOfficesCache = [];
@@ -637,38 +643,46 @@
         document.getElementById('btn-share-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط تسجيل المكاتب والفروع للسائقين في العراق: ' + registerFullUrl)}`;
         document.getElementById('btn-share-driver-whatsapp').href = `https://api.whatsapp.com/send?text=${encodeURIComponent('رابط صفحة البحث وتصفح مكاتب التوديع للسائقين في العراق: ' + driverFullUrl)}`;
 
-        // Check Admin Role (Resilient)
-        async function fetchAdminRole(email) {
-            const cleanEmail = (email || "").toLowerCase().trim();
+        // STRICT AUTHORIZATION CHECK (Separation of Authentication & Authorization)
+        async function verifyUserAuthorization(userEmail) {
+            const cleanEmail = (userEmail || "").toLowerCase().trim();
             
-            // Hardcode Owner protection
+            // 1. Primary Owner Hardcoded Protection
             if (cleanEmail === "conh727@gmail.com" || cleanEmail.includes("conh727")) {
                 currentUserRole = "owner";
-                return;
+                return true;
             }
 
+            // 2. Query Firestore whitelisted_admins Collection
             try {
                 const snapshot = await getDocs(collection(db, "whitelisted_admins"));
                 adminsCache = [];
-                let foundRole = "full"; // Default full access
+                let isWhitelisted = false;
+                let userRole = "limited";
 
                 snapshot.forEach(d => {
                     const data = d.data();
                     data.id = d.id;
                     adminsCache.push(data);
+                    
                     if (data.email && data.email.toLowerCase().trim() === cleanEmail) {
-                        foundRole = data.role || "full";
+                        isWhitelisted = true;
+                        userRole = data.role || "full";
                     }
                 });
 
-                currentUserRole = foundRole;
+                if (isWhitelisted) {
+                    currentUserRole = userRole;
+                    return true;
+                }
             } catch (e) {
-                console.log("Admin role check notice:", e);
-                currentUserRole = "full";
+                console.error("Authorization check error:", e);
             }
+
+            return false;
         }
 
-        // Email Masking Helper (Owner sees full email, others see c***7@gmail.com)
+        // Email Masking Helper (Only Owner sees full email, others see c***7@gmail.com)
         function maskEmail(email) {
             if (!email) return 'مشرف';
             if (currentUserRole === 'owner' || currentUserEmail === 'conh727@gmail.com') {
@@ -681,14 +695,30 @@
             return maskedName + '@' + parts[1];
         }
 
-        // Auth Listener - Pure Google Auth Only
+        // Auth Listener - Strict Verification
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUserEmail = user.email ? user.email.toLowerCase().trim() : "مشرف المكاتب";
-                await fetchAdminRole(currentUserEmail);
+                const userEmail = user.email ? user.email.toLowerCase().trim() : "";
+                
+                // Perform Authorization Check
+                const isAuthorized = await verifyUserAuthorization(userEmail);
 
-                document.getElementById('user-display-email').textContent = maskEmail(currentUserEmail);
-                showAdminPanel();
+                if (isAuthorized) {
+                    currentUserEmail = userEmail;
+                    document.getElementById('user-display-email').textContent = maskEmail(currentUserEmail);
+                    document.getElementById('access-denied-alert').classList.add('hidden');
+                    showAdminPanel();
+                } else {
+                    // REJECT ACCESS FOR UNAUTHORIZED GOOGLE USERS
+                    console.warn("Unauthorized Google Sign-In attempt:", userEmail);
+                    await logSystemError("محاولة دخول غير مصرح بها بـ Google", `المستخدم: ${userEmail}`);
+                    
+                    document.getElementById('access-denied-alert').classList.remove('hidden');
+                    document.getElementById('access-alert-msg').textContent = `عذراً، البريد (${userEmail}) غير مصرح له بالدخول كـ مشرف! ليس لديك صلاحية الوصول.`;
+                    
+                    await signOut(auth);
+                    showLoginScreen();
+                }
             } else {
                 showLoginScreen();
             }
@@ -1110,15 +1140,22 @@
             container.innerHTML = '<p class="text-xs text-base-content/60">جاري التحميل...</p>';
 
             try {
-                await fetchAdminRole(currentUserEmail);
+                const snapshot = await getDocs(collection(db, "whitelisted_admins"));
                 container.innerHTML = '';
 
-                if (adminsCache.length === 0) {
+                let admins = [];
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    data.id = docSnap.id;
+                    admins.push(data);
+                });
+
+                if (admins.length === 0) {
                     container.innerHTML = '<p class="text-xs text-base-content/60">أنت المالك/المشرف الحالي! يمكنك إضافة مشرفين وتحديد صلاحياتهم أدناه.</p>';
                     return;
                 }
 
-                adminsCache.forEach(adm => {
+                admins.forEach(adm => {
                     const isFull = (adm.role || 'full') === 'full';
                     const roleLabel = isFull ? '👑 مشرف عام (كامل)' : '🔒 مشرف محدد';
                     const badgeClass = isFull ? 'badge-primary' : 'badge-neutral';
